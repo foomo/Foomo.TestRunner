@@ -1,0 +1,1 @@
+Provides an integration of PHPUnit - Sebastian Bergmanns unit testing framework http://www.phpunit.de . The main goal is, to make running unit tests as simple and appealing as possible.

@@ -1,0 +1,1 @@
+Testtrunner needs PHPUnit, which must be installed through pear to make this functionality available. See PHPUnits documentation for detailed instructions.

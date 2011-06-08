@@ -1,0 +1,87 @@
+Unit tests are available through the test runner in the toolbox.
+
+If you want to write a unit test simply extend **PHPUnit_Framework_TestCase**.
+
+Unit testing is an art of its own - this example is a **very** basic example
+
+++ Conventions
+
+Naming If a class is called **MyExample** the unit test class will be called **MyExampleTest**
+
+Where to put suites, tests and their resources:
+
+||**Structure of a suite**||
+||home of the unit tests in your site                                        ||Your.Module/tests||
+||home of a suite                                                            ||Your.Module/tests/SuiteName||
+||class defining a suite                                                     ||Your.Module/tests/SuiteName/SuiteClass.class.php||
+||a unit test class                                                          ||Your.Module/tests/SuiteName/MyClassTest.class.php||
+||another one ...                                                            ||Your.Module/tests/SuiteName/MyClass...Test.class.php||
+||mock object                                                                ||Your.Module/tests/SuiteName/MyClassTestMock.class.php||
+||place for resources like sql files or whatever you need to work with       ||Your.Module/tests/SuiteName/resources/someFile.someType||
+||**lonely unit test**||
+||tests which are not grouped in any suite stay top level                    ||Your.Module/tests/ClassWhichIsNotInASuiteTest.class.php||
+
+++ Writing a unit test
+
+<code type="php">
+//
+require_once 'PHPUnit/Framework.php';
+/**
+  * Test class for MyExample
+  */
+class MyExampleTest extends PHPUnit_Framework_TestCase {
+	/**
+	  * this method will be called before the tests in are run
+	  */
+	public function setUp()
+	{
+	}
+	/**
+	  * All public methods of this class starting with 
+	  * test in their name will be executed when 
+	  * the test is being run
+	  */
+	public function testSomeFunction()
+	{
+	}
+	/**
+	  * this method will be called after the tests were run
+	  */
+	public function tearDown()
+	{
+	}
+}
+</code>
+
+++ Grouping unit tests into suites
+
+Extending **FoomoTestSuite** lets you group unit tests into suites. All Class extending **FoomoTestSuite** will be listed in the test runner.
+<code type="php">
+/**
+ * Example test suite
+ *
+ */
+class ExampleTestSuite extends FoomoTestSuite {
+	/**
+	 * get a list of class name, which will be 
+	 * accumulated into a test as a suite
+	 *
+	 * @return array
+	 */
+	public function radTestSuiteGetList()
+	{
+ 		return array('MyExampleTest', 'MyOtherUnitTest', 'YetAnotherUnitTest');
+	}
+}
+</code>
+
+++ Running tests
+
+Use the testrunner in the toolbox
+
+**Do not forget to reset the auto loader cache!**
+
+++ Caveats
+
+* You wrote a helper class and it is showing up as unit => make it abstract
+* You wrote a test and do not see it in the testrunner => reset the FoomoAutoloader cache

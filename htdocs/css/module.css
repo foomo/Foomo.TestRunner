@@ -1,0 +1,58 @@
+@CHARSET "UTF-8";
+/** unit tests **/
+
+#testRunnerMenuTable ,#testRunnerMenuTable td {
+	border: 1px solid black;
+}
+#testRunnerMenuTable {
+	width: 800px;
+}
+#testRunnerMenuTable THEAD {
+	font-size : large;
+	font-weight: bold;
+}
+
+.tableOdd {
+	background-color: #ACACAC;
+}
+.tableEven {
+	background-color: #EFEFEF;
+}
+
+
+#testRunnerUnitTestResult {
+	background-color: #eeeeee;
+	padding: 20px;
+	overflow: auto;
+}
+#testRunnerMenuLabel {
+	margin-top:0;
+}
+#testRunnerMenu {
+	padding-left:30px;
+	overflow: auto;
+}
+
+.error {
+	background-color: white;
+	padding:5px;
+}
+.errorTrace {
+	background-color: white;
+	padding:5px;
+	display:none;
+}
+.story {
+	font-family: "Courier New";
+}
+#testResult {
+	font-size: 16px;
+	padding: 10px;
+	margin: 20px;
+	background-color: lightgrey;
+}
+
+#sthReallyBad {
+	color: red;
+	font-size: 24px;
+}
