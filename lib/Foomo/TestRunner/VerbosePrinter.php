@@ -157,7 +157,7 @@ class VerbosePrinter implements PHPUnit_Framework_TestListener {
 			$this->suiteExists($this->currentSuite->getName()) || 
 			$this->testExists($this->currentSuite->getName())
 		) {
-			$this->lineOut('<li><h1><a href="'.$this->getUrlHandler()->renderUrl('Foomo\\TestRunner\\Frontend\\Controller', 'runTest', array($this->currentSuite->getName())).'">Suite ' . $this->currentSuite->getName() . '</h1><ul>');
+			$this->lineOut('<li><h1><a href="'.$this->getUrlHandler()->renderUrl('Foomo\\TestRunner\\Frontend\\Controller', 'runTest', array($this->currentSuite->getName())).'">Suite ' . $this->currentSuite->getName() . '</a></h1><ul>');
 		} else {
 			$this->lineOut('<li><h1>Suite ' . $suite->getName() . '</h1><ul>');
 		}

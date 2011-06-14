@@ -264,13 +264,13 @@ class TestRunner {
 	 */
 	public function composeSuiteFromFoomoTestSuite($suiteName)
 	{
-		$suite = new $suiteName;
-		$unitSuite = new PHPUnit_Framework_TestSuite;
-		$unitSuite->setName($suiteName);
+		
+		$suite = new PHPUnit_Framework_TestSuite();
+		$suite->setName($suiteName);
 		foreach ($this->getSuiteTests($suiteName) as $className) {
-			$unitSuite->addTestSuite($className);
+			$suite->addTestSuite($className);
 		}
-		return $unitSuite;
+		return $suite;
 	}
 
 }

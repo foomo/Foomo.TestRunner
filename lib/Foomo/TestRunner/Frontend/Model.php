@@ -37,7 +37,13 @@ class Model extends \Foomo\TestRunner {
 	 */
 	public function runTest($name)
 	{
-		$this->currentResult = $this->runOne($name);
+		$refl = new \ReflectionClass($name);
+		if($refl->isSubclassOf('PHPUnit_Framework_TestSuite')) {
+			$this->runSuite($name);
+		} else {
+			$this->currentResult = $this->runOne($name);
+		}
+		
 	}
 	public function runTestCase($suiteName, $caseName)
 	{
