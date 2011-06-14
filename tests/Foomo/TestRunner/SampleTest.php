@@ -15,13 +15,6 @@ class SampleTest extends \PHPUnit_Framework_TestCase {
 	}
 	public function testTestSkipped()
 	{
-		fuckuoff();
 		$this->markTestSkipped('php ext bla not present');
 	}
-	public function testFail()
-	{
-		//$this->fail('AAAAAAAAAAAAAAAAAArgh');
-		$this->assertTrue(false);
-	}
-	
 }
