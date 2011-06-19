@@ -74,15 +74,13 @@ class Model extends \Foomo\TestRunner {
 		$suite	= new PHPUnit_Framework_TestSuite($name);
 		return $this->runASuite($suite);
 	}
-	private function runASuite(PHPUnit_Framework_TestSuite $suite, $streamHtml = true)
+	private function runASuite(PHPUnit_Framework_TestSuite $suite)
 	{
+		$streamHtml = php_sapi_name() != 'cli';
 		if($streamHtml) {
 			\Foomo\MVC::abort();
 			echo \Foomo\HTMLDocument::getInstance()->outputWithOpenBody();
 		}
-		//ini_set('html_errors', 'Off');
-		//header('Content-type: text/plain;charset=utf-8');
-		//echo '<pre>';
 		$ret = new \Foomo\TestRunner\Result();
 		$ret->verbosePrinter->model = $this;
 		$ret->verbosePrinter->startOutput();
@@ -108,9 +106,8 @@ class Model extends \Foomo\TestRunner {
 		} catch(Exception $e) {
 			$ret->exception = $e;
 		}
-		
+		$ret->verbosePrinter->printResult($ret);
 		if($streamHtml) {
-			$ret->verbosePrinter->printResult($ret);
 			exit;
 		}
 		return $ret;

@@ -53,6 +53,10 @@ class Result {
 	public $verbosePrinter;
 	public function  __construct() {
 		$this->result = new PHPUnit_Framework_TestResult;
-		$this->result->addListener($this->verbosePrinter = new VerbosePrinter);
+		if(php_sapi_name() == 'cli') {
+			$this->result->addListener($this->verbosePrinter = new VerbosePrinter\Text);
+		} else {
+			$this->result->addListener($this->verbosePrinter = new VerbosePrinter\HTML);
+		}
 	}
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Foomo\TestRunner;
+namespace Foomo\TestRunner\VerbosePrinter;
 
 use PHPUnit_Framework_TestListener;
 
-class VerbosePrinter implements PHPUnit_Framework_TestListener {
+class HTML extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 	private $err = 0;
 	private $indent = 0;
 	public $stats = array();
@@ -18,7 +18,7 @@ class VerbosePrinter implements PHPUnit_Framework_TestListener {
 	 */
 	private $errorPrinter;
 	/**
-	 * @var Frontend\Model
+	 * @var Foomo\TestRunner\Frontend\Model
 	 */
 	public $model;
 	private $errorContainerSent;
@@ -162,31 +162,6 @@ class VerbosePrinter implements PHPUnit_Framework_TestListener {
 			$this->lineOut('<li><h1>Suite ' . $suite->getName() . '</h1><ul>');
 		}
 	}
-	private function suiteExists($name)
-	{
-		foreach(\Foomo\Modules\Manager::getEnabledModules() as $enabledModuleName) {
-			foreach($suites = $this->model->getModuleSuites($enabledModuleName) as $suite) {
-				if($suite == $name) {
-					return true;
-				}
-			}
-			//var_dump($name, $suites);
-		}	
-		return false;
-	}
-	private function testExists($name)
-	{
-		foreach(\Foomo\Modules\Manager::getEnabledModules() as $enabledModuleName) {
-			foreach($tests = array_merge($this->model->getModuleTests($enabledModuleName), $this->model->getModuleSpecs($enabledModuleName)) as $test) {
-				if($test == $name) {
-					return true;
-				}
-			}
-		}		
-		//var_dump($tests, $name);
-		return false;
-		
-	}
     /**
      * A test suite ended.
      *
@@ -206,7 +181,7 @@ class VerbosePrinter implements PHPUnit_Framework_TestListener {
 	{
 		$this->currentTest = $test;
 		$this->errorContainerSent = false;
-		Frontend\Model::$errorBuffer = array();
+		\Foomo\TestRunner\Frontend\Model::$errorBuffer = array();
 		$this->err = 0;
 		$this->indent = 0;
 		if($this->testExists($this->currentSuite->getName())) {
@@ -228,13 +203,6 @@ class VerbosePrinter implements PHPUnit_Framework_TestListener {
 	{
 		$keys = array_keys(\Foomo\MVC::$handlers);
 		return \Foomo\MVC::$handlers[$keys[0]];
-		/*
-		static $handler = null;
-		if(is_null($handler)) {
-			$handler = new \Foomo\MVC\URLHandler(new Frontend, \Foomo\ROOT_HTTP . '/modules/' . Module::NAME);
-		}
-		return $handler;
-		*/
 	}
     /**
      * A test ended.
@@ -249,7 +217,7 @@ class VerbosePrinter implements PHPUnit_Framework_TestListener {
 			$this->sendErrorContainer();
 		}
 		$lines = explode(PHP_EOL, $lines);
-		$isSpec = $test instanceof AbstractSpec;
+		$isSpec = $this->isSpec($test);
 		if($isSpec) {
 			$this->sendErrorContainer();
 			$this->lineOut('<div class="story">');
@@ -257,13 +225,17 @@ class VerbosePrinter implements PHPUnit_Framework_TestListener {
 		$this->indent ++;
 		foreach($lines as $line) {
 			if(strlen($line) > 0) {
-				$this->lineOut($line, 1);
+				if($this->isStoryLine($line)) {
+					$this->lineOut('<b>' . $line . '</b>', 'black');
+				} else {
+					$this->lineOut($line, 'grey');
+				}
 			}
 		}
-		if(count(Frontend\Model::$errorBuffer) > 0) {
+		if(count(\Foomo\TestRunner\Frontend\Model::$errorBuffer) > 0) {
 			$this->sendErrorContainer();
 			$this->lineOut('Ignored errors:', 'grey');
-			foreach(Frontend\Model::$errorBuffer as $error) {
+			foreach(\Foomo\TestRunner\Frontend\Model::$errorBuffer as $error) {
 				$this->printError($error);
 			}
 		}
@@ -324,13 +296,12 @@ class VerbosePrinter implements PHPUnit_Framework_TestListener {
 					'red'
 				);
 			}
-			//$this->lineOut();
 		}
 		$this->lineOut('</div>');
 		$this->indent --;
 		$this->lineOut('</code>');	
 	}
-	public function printResult(Result $result)
+	public function printResult(\Foomo\TestRunner\Result $result)
 	{
 		// there is some ob_ mess @the end of the process
 		$this->lineOut('</ul>');

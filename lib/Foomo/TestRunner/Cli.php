@@ -18,13 +18,21 @@ class Cli {
 	/**
 	 * run tests and display results
 	 * 
-	 * @param string $testNames names of the tests as comma separated list
-	 * @return string unit test results
+	 * @param string[] $testNames names of the tests as comma separated list
 	 */
-	public function runTests($testNames) {
-		foreach(explode(',', $testNames) as $testName) {
+	public function runTests(array $testNames) {
+		foreach($testNames as $testName) {
 			$this->model->runTest(trim($testName));
 		}	
+	}
+	/**
+	 * run tests for a module
+	 * 
+	 * @param string $moduleName 
+	 */
+	public function runModuleTests($moduleName)
+	{
+		$this->model->runModule($moduleName);
 	}
 	/**
 	 * generate a module test suite
@@ -37,7 +45,10 @@ class Cli {
 	public function generateTestSuiteForModule($moduleName, $classDir)
 	{
 		$php = \Foomo\TestRunner\Module::getView($this, 'testSuite.tpl', $moduleName)->render();
-		$fileName = $classDir . DIRECTORY_SEPARATOR . 'FoomoModuleTestSuite' . ucfirst($moduleName) . '.class.php';
+		$fileName = $classDir . DIRECTORY_SEPARATOR . 'FoomoModuleTestSuite' . ucfirst(str_replace('.', '', $moduleName)) . '.php';
+		if(!is_writable($fileName)) {
+			trigger_error('con not write to ' . $fileName, E_USER_WARNING);
+		}
 		return 'wrote ' . file_put_contents($fileName, $php) . ' bytes to ' . $fileName . ' ' . $php . PHP_EOL;
 	}
 

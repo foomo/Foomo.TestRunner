@@ -64,13 +64,16 @@ class WorldProxy {
 			}
 			call_user_func_array(array($this->world,$name), $args);
 		} else {
+			// that would be nice, but it terminates test execution and that is not nice
+			// $this->world->testCase->markTestIncomplete();
 			if(!in_array(strtolower($name), $this->methodTemplatesShown)) {
 				$this->methodTemplatesShown[] = strtolower($name);
-				echo '	/**' . PHP_EOL . '	 * @story ' . $this->methodNameToStoryText($name) . PHP_EOL;
+				echo '// missing method on your world:' . PHP_EOL;
+				echo '/**' . PHP_EOL . '  * @story ' . $this->methodNameToStoryText($name) . PHP_EOL;
 				$i = 0;
 				$argsStringArray = array();
 				foreach($args as $arg) {
-					echo '	 * @param ';
+					echo '  * @param ';
 					switch(true) {
 						case (is_scalar($arg) || is_array($arg)):
 							echo gettype($arg);
@@ -86,9 +89,11 @@ class WorldProxy {
 					$argsStringArray[] = '$arg_' . $i;
 					$i++;
 				}
-				echo '	 * @return ' . get_class($this->world) . PHP_EOL;
-				echo '	 */' . PHP_EOL;
-				echo '	public function '.$name.'(' . implode(', ', $argsStringArray) . ') {' . PHP_EOL . '		echo \'story step \' . __METHOD__ . \' needs to be implemented\';' . PHP_EOL . '	}' . PHP_EOL;
+				echo '  * @return ' . get_class($this->world) . PHP_EOL;
+				echo '  */' . PHP_EOL;
+				echo ' public function '.$name.'(' . implode(', ', $argsStringArray) . ') {' . PHP_EOL . 
+					 '   echo \'story step \' . __METHOD__ . \' needs to be implemented\' . PHP_EOL;' . PHP_EOL . 
+					 ' }' . PHP_EOL;
 			}
 		}
 		return $this;
