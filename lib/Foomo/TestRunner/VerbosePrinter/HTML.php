@@ -111,7 +111,7 @@ class HTML extends AbstractPrinter implements PHPUnit_Framework_TestListener {
     public function addFailure(\PHPUnit_Framework_Test $test, \PHPUnit_Framework_AssertionFailedError $e, $time){
 		$this->sendErrorContainer();
 		$this->err ++;
-		$this->lineOut($e->getMessage(), 'red');
+		$this->lineOut(htmlspecialchars($e->getMessage()), 'red');
 		$this->lineOut('FAIL', 'red');
 	}
 
@@ -125,7 +125,7 @@ class HTML extends AbstractPrinter implements PHPUnit_Framework_TestListener {
     public function addIncompleteTest(\PHPUnit_Framework_Test $test, \Exception $e, $time){
 		$this->sendErrorContainer();
 		$this->err ++;
-		$this->lineOut($e->getMessage(), 'grey');
+		$this->lineOut(htmlspecialchars($e->getMessage()), 'grey');
 		$this->lineOut('INCOMPLETE', 'grey');
 	}
 
