@@ -20,7 +20,7 @@ $suiteTests = array();
 	<h2><?= $view->link('Pack everything into a suite and run it all', 'runAll') ?></h2>
 	<h2>Modules</h2>
 	<ul>
-		<? foreach($tests as $domain => $stuff): 
+		<? foreach($tests as $domain => $stuff):
 			if(!(count($stuff['tests'])>0 || count($stuff['suites'])>0)) {
 				continue;
 			}
@@ -56,7 +56,7 @@ $suiteTests = array();
 					?>
 			<tr>
 				<td>
-					<h1><?= $view->link($domain, 'runModuleTests', array('moduleName' => $domain), 'run all tests in this module', null, $domain) ?></h1>
+					<h1><?= $view->link($domain, 'runModuleTests', array('moduleName' => $domain), array('title' => 'run all tests in this module', null, $domain)) ?></h1>
 				</td>
 				<td>
 					<?
