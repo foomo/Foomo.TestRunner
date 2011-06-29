@@ -1,10 +1,31 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace Foomo\TestRunner\VerbosePrinter;
 
-use PHPUnit_Framework_TestListener;
-
-class HTML extends AbstractPrinter implements PHPUnit_Framework_TestListener {
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
+class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
+{
 	private $err = 0;
 	private $indent = 0;
 	public $stats = array();
@@ -54,11 +75,11 @@ class HTML extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 			}
 		} else {
 			if(empty($color)) {
-				echo  $line . PHP_EOL;				
+				echo  $line . PHP_EOL;
 			} else {
-				echo str_repeat(' &nbsp;', $this->indent) . '<span style="color:' . $color . '">' . $line . '</span><br>' . PHP_EOL;				
+				echo str_repeat(' &nbsp;', $this->indent) . '<span style="color:' . $color . '">' . $line . '</span><br>' . PHP_EOL;
 			}
-			
+
 			//flush();
 		}
 		if(ob_get_length() > 0) {
@@ -154,7 +175,7 @@ class HTML extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 		$this->currentSuite = $suite;
 		//$view = \Foomo\MVC\View::$viewStack[count(\Foomo\MVC\View::$viewStack)-1];
 		if(
-			$this->suiteExists($this->currentSuite->getName()) || 
+			$this->suiteExists($this->currentSuite->getName()) ||
 			$this->testExists($this->currentSuite->getName())
 		) {
 			$this->lineOut('<li><h1><a href="'.$this->getUrlHandler()->renderUrl('Foomo\\TestRunner\\Frontend\\Controller', 'runTest', array($this->currentSuite->getName())).'">Suite ' . $this->currentSuite->getName() . '</a></h1><ul>');
@@ -256,7 +277,7 @@ class HTML extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 	private function printError(array $error)
 	{
 		static $errorI = 0;
-		
+
 		$errorI ++;
 		$errId = 'err-' . $errorI;
 		$this->lineOut('<code>');
@@ -291,7 +312,7 @@ class HTML extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 			$this->lineOut($func . '(' . $args . ')', 'red');
 			if(!empty($trace['file'])) {
 				$this->lineOut(
-					'file     : ' . $trace['file'] . PHP_EOL . 
+					'file     : ' . $trace['file'] . PHP_EOL .
 					'line     : ' . $trace['line'],
 					'red'
 				);
@@ -299,7 +320,7 @@ class HTML extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 		}
 		$this->lineOut('</div>');
 		$this->indent --;
-		$this->lineOut('</code>');	
+		$this->lineOut('</code>');
 	}
 	public function printResult(\Foomo\TestRunner\Result $result)
 	{

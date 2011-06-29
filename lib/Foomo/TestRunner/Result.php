@@ -1,13 +1,37 @@
 <?php
 
-namespace Foomo\TestRunner;
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
 
-use PHPUnit_Framework_TestResult;
+namespace Foomo\TestRunner;
 
 /**
  * result of a suite, that was run
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
-class Result {
+class Result
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * name of the test suite class
 	 *
@@ -43,7 +67,7 @@ class Result {
 	public $testSuite;
 	/**
 	 * errors from the php error log
-	 * 
+	 *
 	 * @var string
 	 */
 	public $phpErrors;
@@ -51,8 +75,14 @@ class Result {
 	 * @var VerbosePrinter
 	 */
 	public $verbosePrinter;
-	public function  __construct() {
-		$this->result = new PHPUnit_Framework_TestResult;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
+	public function  __construct()
+	{
+		$this->result = new \PHPUnit_Framework_TestResult;
 		if(php_sapi_name() == 'cli') {
 			$this->result->addListener($this->verbosePrinter = new VerbosePrinter\Text);
 		} else {

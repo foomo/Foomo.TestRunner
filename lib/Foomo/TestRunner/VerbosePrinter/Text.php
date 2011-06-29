@@ -1,15 +1,35 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace Foomo\TestRunner\VerbosePrinter;
 
-use PHPUnit_Framework_AssertionFailedError;
-use PHPUnit_Framework_TestListener;
-use PHPUnit_Framework_TestSuite;
-use PHPUnit_Framework_Test;
-use Console_Color;
-use Exception;
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
+class Text extends AbstractPrinter implements \PHPUnit_Framework_TestListener
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Constants
+	//---------------------------------------------------------------------------------------------
 
-class Text extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 	const COLOR_GREEN = 'g';
 	const COLOR_RED = 'r';
 	const COLOR_BLACK = 'k';
@@ -25,32 +45,77 @@ class Text extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 	const OUTPUT_WIDTH = 132;
 	const LINE_SEPARATOR = '-------------||| SEPARATOR |||---------------';
 
-	public $useColors = true;
-	
-	private $err = 0;
-	private $indent = 0;
-	public $stats = array();
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * @var PHPUnit_Framework_TestSuite
 	 */
 	private $currentSuite;
+	/**
+	 *
+	 * @var PHPUnit_Framework_Test
+	 */
 	private $currentTest;
 	/**
 	 * @var Foomo\Log\Printer
 	 */
 	private $errorPrinter;
 	/**
+	 * @var int
+	 */
+	private $err = 0;
+	/**
+	 * @var boolean
+	 */
+	private $errorContainerSent;
+	/**
+	 * @var boolean
+	 */
+	private $done = false;
+	/**
+	 * @var boolean
+	 */
+	private $lastLineWasSeparator = false;
+	/**
+	 * @var int
+	 */
+	private $indent = 0;
+	/**
+	 * @var boolean
+	 */
+	public $useColors = true;
+	/**
+	 * @var array
+	 */
+	public $stats = array();
+	/**
 	 * @var Foomo\TestRunner\Frontend\Model
 	 */
 	public $model;
-	private $errorContainerSent;
-	private $done = false;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		$this->errorPrinter = new \Foomo\Log\Printer();
 		\Foomo\Log\Logger::getInstance()->autoExitOnError = false;
 		register_shutdown_function(array($this, 'shutdownListener'));
 	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 *
+	 */
 	public function shutdownListener()
 	{
 		if(!$this->done) {
@@ -66,56 +131,12 @@ class Text extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 			));
 		}
 	}
-	private function getIndent()
-	{
-		return str_repeat(self::INDENT, ($this->indent>=0)?$this->indent:0);
-	}
-	private $lastLineWasSeparator = false;
-	private function getLineSeparator()
-	{
-		return self::LINE_SEPARATOR;
-	}
-	
-	private function lineOut($line, $color = self::COLOR_WHITE, $bgColor = self::BG_COLOR_BLACK, $styles = array())
-	{
-		if($line == self::LINE_SEPARATOR) {
-			if($this->lastLineWasSeparator) {
-				return;
-			} else {
-				$line = str_repeat('-', self::OUTPUT_WIDTH - strlen($this->getIndent()));
-			}
-			$this->lastLineWasSeparator = true;
-		} else {
-			$this->lastLineWasSeparator = false;
-		}
-		if(strpos($line, PHP_EOL) !== false) {
-			foreach(explode(PHP_EOL, $line) as $subLine) {
-				$this->lineOut($subLine, $color);
-			}
-		} else {
-			$indent = $this->getIndent();
-			$str = $line;
-			if(strlen($indent . $str) < self::OUTPUT_WIDTH) {
-				$postFix = str_repeat(' ', self::OUTPUT_WIDTH - strlen($indent . $str));
-			} else {
-				$postFix = '';
-			}
-			if($this->useColors && class_exists('Console_Color')) {
-				$styles = implode('%', $styles);
-				echo Console_Color::convert(
-					$indent . '%' . $color . '%'. $bgColor . ($styles?'%'. $styles:'') . ' ' . Console_Color::escape($str) . $postFix .'%n', $this->useColors
-				) . PHP_EOL;
-				//echo '%' . $color . '%'. $bgColor . ($styles?'%'. $styles:'') . $str . PHP_EOL;
-			} else {
-				echo $indent . $str . $postFix . PHP_EOL;				
-			}
-		}
-		if(ob_get_length() > 0) {
-			ob_flush();
-			flush();
-		}
-	}
-	public function startOutput() 
+
+
+	/**
+	 *
+	 */
+	public function startOutput()
 	{
 		ini_set('html_errors', 'Off');
 		if(!headers_sent()) {
@@ -196,7 +217,7 @@ class Text extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 		$this->lineOut($this->getLineSeparator());
 		$this->currentSuite = $suite;
 		if(
-			$this->suiteExists($this->currentSuite->getName()) || 
+			$this->suiteExists($this->currentSuite->getName()) ||
 			$this->testExists($this->currentSuite->getName())
 		) {
 			$this->lineOut('Suite ' . $suite->getName(), self::COLOR_WHITE, self::BG_COLOR_BLACK, array(self::STYLE_BOLD));
@@ -205,6 +226,7 @@ class Text extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 		$this->lineOut($this->getLineSeparator());
 		$this->indent ++;
 	}
+
     /**
      * A test suite ended.
      *
@@ -234,6 +256,7 @@ class Text extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 		$this->indent ++;
 		ob_start();
 	}
+
     /**
      * A test ended.
      *
@@ -277,10 +300,49 @@ class Text extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 		}
 		$this->indent --;
 	}
+
+	/**
+	 * @param Foomo\TestRunner\Result $result
+	 */
+	public function printResult(\Foomo\TestRunner\Result $result)
+	{
+		// there is some ob_ mess @the end of the process
+		$this->lineOut($this->getLineSeparator());
+		$this->lineOut('DONE', ($result->result->failureCount() == 0)?self::COLOR_GREEN:self::COLOR_RED, self::STYLE_BOLD);
+		$this->lineOut($this->getLineSeparator());
+		$failures = $result->result->failures();
+		if(count($failures)>0) {
+			$this->indent ++;
+			$this->lineOut('Failed tests');
+			$this->indent ++;
+			foreach($failures as $error) {
+				$this->lineOut(
+					$error->failedTest()->getName(),
+					self::COLOR_RED
+				);
+			}
+			$this->indent --;
+		}
+		$this->lineOut($this->getLineSeparator());
+		$this->lineOut('time       : ' . round($result->result->time(), 3) . ' s');
+		$this->lineOut('failed     : ' . $result->result->failureCount(), ($result->result->failureCount()>0)?self::COLOR_RED:self::COLOR_GREY);
+		$this->lineOut('skipped    : ' . $result->result->skippedCount(), self::COLOR_GREY);
+		$this->lineOut('total      : ' . $result->result->count());
+		$this->done = true;
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @staticvar int $errorI
+	 * @param array $error
+	 */
 	private function printError(array $error)
 	{
 		static $errorI = 0;
-		
+
 		$errorI ++;
 		$errId = 'err-' . $errorI;
 		$this->lineOut(
@@ -313,7 +375,7 @@ class Text extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 			$this->lineOut($func . '(' . $args . ')', self::COLOR_RED);
 			if(!empty($trace['file'])) {
 				$this->lineOut(
-					'file     : ' . $trace['file'] . PHP_EOL . 
+					'file     : ' . $trace['file'] . PHP_EOL .
 					'line     : ' . $trace['line'],
 					self::COLOR_RED
 				);
@@ -321,30 +383,68 @@ class Text extends AbstractPrinter implements PHPUnit_Framework_TestListener {
 		}
 		$this->indent --;
 	}
-	public function printResult(\Foomo\TestRunner\Result $result)
+
+	/**
+	 * @return string
+	 */
+	private function getIndent()
 	{
-		// there is some ob_ mess @the end of the process
-		$this->lineOut($this->getLineSeparator());
-		$this->lineOut('DONE', ($result->result->failureCount() == 0)?self::COLOR_GREEN:self::COLOR_RED, self::STYLE_BOLD);
-		$this->lineOut($this->getLineSeparator());
-		$failures = $result->result->failures();
-		if(count($failures)>0) {
-			$this->indent ++;
-			$this->lineOut('Failed tests');
-			$this->indent ++;
-			foreach($failures as $error) {
-				$this->lineOut(
-					$error->failedTest()->getName(),
-					self::COLOR_RED
-				);
+		return str_repeat(self::INDENT, ($this->indent>=0)?$this->indent:0);
+	}
+
+	/**
+	 * @return string
+	 */
+	private function getLineSeparator()
+	{
+		return self::LINE_SEPARATOR;
+	}
+
+	/**
+	 *
+	 * @param string $line
+	 * @param string $color
+	 * @param string $bgColor
+	 * @param array $styles
+	 * @return string
+	 */
+	private function lineOut($line, $color=self::COLOR_WHITE, $bgColor=self::BG_COLOR_BLACK, $styles=array())
+	{
+		if($line == self::LINE_SEPARATOR) {
+			if($this->lastLineWasSeparator) {
+				return;
+			} else {
+				$line = str_repeat('-', self::OUTPUT_WIDTH - strlen($this->getIndent()));
 			}
-			$this->indent --;
+			$this->lastLineWasSeparator = true;
+		} else {
+			$this->lastLineWasSeparator = false;
 		}
-		$this->lineOut($this->getLineSeparator());
-		$this->lineOut('time       : ' . round($result->result->time(), 3) . ' s');
-		$this->lineOut('failed     : ' . $result->result->failureCount(), ($result->result->failureCount()>0)?self::COLOR_RED:self::COLOR_GREY);
-		$this->lineOut('skipped    : ' . $result->result->skippedCount(), self::COLOR_GREY);
-		$this->lineOut('total      : ' . $result->result->count());
-		$this->done = true;
+		if(strpos($line, PHP_EOL) !== false) {
+			foreach(explode(PHP_EOL, $line) as $subLine) {
+				$this->lineOut($subLine, $color);
+			}
+		} else {
+			$indent = $this->getIndent();
+			$str = $line;
+			if(strlen($indent . $str) < self::OUTPUT_WIDTH) {
+				$postFix = str_repeat(' ', self::OUTPUT_WIDTH - strlen($indent . $str));
+			} else {
+				$postFix = '';
+			}
+			if($this->useColors && class_exists('Console_Color')) {
+				$styles = implode('%', $styles);
+				echo \Console_Color::convert(
+					$indent . '%' . $color . '%'. $bgColor . ($styles?'%'. $styles:'') . ' ' . \Console_Color::escape($str) . $postFix .'%n', $this->useColors
+				) . PHP_EOL;
+				//echo '%' . $color . '%'. $bgColor . ($styles?'%'. $styles:'') . $str . PHP_EOL;
+			} else {
+				echo $indent . $str . $postFix . PHP_EOL;
+			}
+		}
+		if(ob_get_length() > 0) {
+			ob_flush();
+			flush();
+		}
 	}
 }

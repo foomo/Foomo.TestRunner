@@ -1,45 +1,85 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace Foomo\TestRunner;
 
 /**
  * cli interface
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
-class Cli {
+class Cli
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
 	/**
-	 * 
 	 * @var Foomo\TestRunner
 	 */
 	protected $model;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 *
+	 */
 	public function __construct()
 	{
-		$this->model = new \Foomo\TestRunner\Frontend\Model(\Foomo\TestRunner\Frontend\Model::RENDER_MODE_TEXT);	
+		$this->model = new \Foomo\TestRunner\Frontend\Model(\Foomo\TestRunner\Frontend\Model::RENDER_MODE_TEXT);
 	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * run tests and display results
-	 * 
+	 *
 	 * @param string[] $testNames names of the tests as comma separated list
 	 */
-	public function runTests(array $testNames) {
+	public function runTests(array $testNames)
+	{
 		foreach($testNames as $testName) {
 			$this->model->runTest(trim($testName));
-		}	
+		}
 	}
+
 	/**
 	 * run tests for a module
-	 * 
-	 * @param string $moduleName 
+	 *
+	 * @param string $moduleName
 	 */
 	public function runModuleTests($moduleName)
 	{
 		$this->model->runModule($moduleName);
 	}
+
 	/**
 	 * generate a module test suite
-	 * 
+	 *
 	 * @param string $moduleName name of the module
 	 * @param string $classDir directory where to put the class to
-	 *
 	 * @return string content of the generated class
 	 */
 	public function generateTestSuiteForModule($moduleName, $classDir)
@@ -54,13 +94,13 @@ class Cli {
 
 	/**
 	 * run unit tests for all enabled modules including radact core
-	 * 
+	 *
 	 * @param string $reportDirectory where to put the report xml-files
 	 */
 	public function runProjectTestsForHudson($reportDirectory)
 	{
 		$modules = Foomo\Modules\Manager::getEnabledModules();
-		
+
 		set_error_handler(array('Foomo\\TestRunner\\Frontend\\Model', 'handleError'), E_ALL);
 		$result = new PHPUnit_Framework_TestResult;
 		$logFile = $reportDirectory . DIRECTORY_SEPARATOR . 'TestReport.xml';
@@ -82,10 +122,9 @@ class Cli {
 
 	/**
 	 * run all unit tests in a module and render Hudson friendly output
-	 * 
+	 *
 	 * @param string $moduleName name of the module to run all tests for
 	 * @param string $reportDirectory where to put the report xml-files
-	 *
 	 */
 	public function runModuleTestsForHudson($moduleName, $reportDirectory)
 	{
@@ -109,11 +148,11 @@ class Cli {
 	}
 	/**
 	 * list tests and test suites of module(s)
-	 * 
+	 *
 	 * @param string $moduleName name of the module, if none given all will be listed
 	 * @return string
 	 */
-	public function listModule($moduleName = '')
+	public function listModule($moduleName='')
 	{
 		$ret = '';
 		if($moduleName == '') {
@@ -122,10 +161,19 @@ class Cli {
 			$moduleNames = array($moduleName);
 		}
 		foreach($moduleNames as $moduleName) {
-			$ret .= $this->listAModule($moduleName); 
+			$ret .= $this->listAModule($moduleName);
 		}
 		return $ret . PHP_EOL;
 	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param string $moduleName
+	 * @return string
+	 */
 	private function listAModule($moduleName)
 	{
 		$ret = '';
@@ -137,5 +185,5 @@ class Cli {
 		$ret .= PHP_EOL;
 		return $ret;
 	}
-	
+
 }

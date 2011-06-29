@@ -1,18 +1,56 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
+
 namespace Foomo\TestRunner\ErrorPrinter;
+
 /**
  * renders errors in html format
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  */
-class Html {
-	private static $patchTraceProps = array(
-			'type' => 'none',
-			'args' => array(),
-			'file' => '-',
-			'line' => '-',
-			'class' => '-'
-		);
+class Html
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Static variables
+	//---------------------------------------------------------------------------------------------
 
+	/**
+	 * @var array
+	 */
+	private static $patchTraceProps = array(
+		'type' => 'none',
+		'args' => array(),
+		'file' => '-',
+		'line' => '-',
+		'class' => '-'
+	);
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public static methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param array $errors
+	 * @return string
+	 */
 	public static function renderErrors($errors)
 	{
 		$ret = '';
@@ -23,7 +61,7 @@ class Html {
 
 			$stack = array();
 
-			$fullTrace = $error->thrownException()->getTrace();		
+			$fullTrace = $error->thrownException()->getTrace();
 			foreach(\array_slice($fullTrace, 2) as $traceEntry) {
 				if(isset($traceEntry['args']) && is_array($traceEntry['args'])) {
 					\array_walk($traceEntry['args'], function(&$arg) {

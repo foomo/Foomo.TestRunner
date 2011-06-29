@@ -1,7 +1,20 @@
 <?php
 
 /*
- * bestbytes-copyright-placeholder
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
  */
 
 namespace Foomo;
@@ -11,9 +24,17 @@ use PHPUnit_Framework_TestSuite;
 
 /**
  * wraps sinple model around phpUnit
+ *
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
  * @todo non html rendering is a hack / experiment
  */
-class TestRunner {
+class TestRunner
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
 
 	/**
 	 * get all tests in a suite
@@ -44,49 +65,6 @@ class TestRunner {
 		return $this->getList('Foomo\\TestRunner\\TestSuite');
 	}
 
-	private function getList($keys)
-	{
-		$reflections = $this->gatherExtensionsOfClass($keys);
-		$list = array();
-		foreach ($reflections as $reflection) {
-			$list[] = $reflection->name;
-		}
-		sort($list);
-		return $list;
-	}
-
-	private function getSuitesInFolder($folder)
-	{
-		return $this->getShitInFolder($folder, 'Foomo\\TestRunner\\Suite');
-	}
-
-	private function getSpecsInFolder($folder)
-	{
-		return $this->getShitInFolder($folder, 'Foomo\\TestRunner\\AbstractSpec');
-	}
-
-	private function getTestsInFolder($folder)
-	{
-		return $this->getShitInFolder($folder, 'PHPUnit_Framework_TestCase');
-	}
-
-	private function getShitInFolder($folder, $typeOfShit)
-	{
-		$classMap = AutoLoader::getClassMap();
-		$allTests = $this->getList($typeOfShit);
-		$ret = array();
-		$folder = realpath($folder);
-		foreach ($allTests as $test) {
-			//$lowerTest = strtolower($test);
-			if (isset($classMap[$test])) {
-				if (strpos(realpath($classMap[$test]), $folder) === 0) {
-					$ret[] = $test;
-				}
-			}
-		}
-		return $ret;
-	}
-
 	/**
 	 * list all available tests
 	 *
@@ -99,7 +77,7 @@ class TestRunner {
 
 	/**
 	 * Get all tests for a module, that are not in a suite in that module
-	 * 
+	 *
 	 * @param string $moduleName name og the module
 	 */
 	public function getModuleStandAloneTests($moduleName)
@@ -125,7 +103,7 @@ class TestRunner {
 	 * return all tests for a module
 	 *
 	 * @param string $moduleName name of the module
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getModuleTests($moduleName)
@@ -139,6 +117,7 @@ class TestRunner {
 		}
 		return $ret;
 	}
+
 	public function getModuleSpecs($moduleName)
 	{
 		return $this->getSpecsInFolder(\Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $moduleName . DIRECTORY_SEPARATOR . 'tests');
@@ -148,7 +127,7 @@ class TestRunner {
 	 * return all tests for a module
 	 *
 	 * @param string $moduleName name of the module
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getModuleSuites($moduleName)
@@ -158,22 +137,6 @@ class TestRunner {
 		return $this->getSuitesInFolder($dir);
 	}
 
-	private function gatherExtensionsOfClass($baseClassName)
-	{
-		$results = array();
-		$classMap = AutoLoader::getClassMap();
-		$classes = array_keys($classMap);
-		$report = '';
-		foreach ($classes as $class) {
-			if (class_exists($class)) {
-				$reflection = new ReflectionClass($class);
-				if ($reflection->isSubclassOf($baseClassName) && !$reflection->isAbstract()) {
-					$results[] = $reflection;
-				}
-			}
-		}
-		return $results;
-	}
 	public function composeCompleteSuite()
 	{
 		$enabledModules = Modules\Manager::getEnabledModules();
@@ -187,9 +150,9 @@ class TestRunner {
 	/**
 	 *
 	 *  Scans through modules/moduleName/tests for Test and Suite and Composes them into a suite
-	 *  
+	 *
 	 * @param string $moduleName name of the module
-	 * 
+	 *
 	 * @return PHPUnit_Framework_TestSuite
 	 */
 	public function composeModuleSuite($moduleName, $suite = null)
@@ -232,15 +195,15 @@ class TestRunner {
 			}
 			$suite->addTestSuite($specsSuite);
 		}
-		
+
 		return $suite;
 	}
 
 	/**
 	 * get test cases in a class
-	 * 
+	 *
 	 * @param string $className name of the class
-	 * 
+	 *
 	 * @return string[]
 	 */
 	public function getTestMethods($className)
@@ -264,7 +227,7 @@ class TestRunner {
 	 */
 	public function composeSuiteFromFoomoTestSuite($suiteName)
 	{
-		
+
 		$suite = new PHPUnit_Framework_TestSuite();
 		$suite->setName($suiteName);
 		foreach ($this->getSuiteTests($suiteName) as $className) {
@@ -273,4 +236,70 @@ class TestRunner {
 		return $suite;
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
+	private function getList($keys)
+	{
+		$reflections = $this->gatherExtensionsOfClass($keys);
+		$list = array();
+		foreach ($reflections as $reflection) {
+			$list[] = $reflection->name;
+		}
+		sort($list);
+		return $list;
+	}
+
+	private function getSuitesInFolder($folder)
+	{
+		return $this->getShitInFolder($folder, 'Foomo\\TestRunner\\Suite');
+	}
+
+	private function getSpecsInFolder($folder)
+	{
+		return $this->getShitInFolder($folder, 'Foomo\\TestRunner\\AbstractSpec');
+	}
+
+	private function getTestsInFolder($folder)
+	{
+		return $this->getShitInFolder($folder, 'PHPUnit_Framework_TestCase');
+	}
+
+	/**
+	 * @todo: rename
+	 */
+	private function getShitInFolder($folder, $typeOfShit)
+	{
+		$classMap = AutoLoader::getClassMap();
+		$allTests = $this->getList($typeOfShit);
+		$ret = array();
+		$folder = realpath($folder);
+		foreach ($allTests as $test) {
+			//$lowerTest = strtolower($test);
+			if (isset($classMap[$test])) {
+				if (strpos(realpath($classMap[$test]), $folder) === 0) {
+					$ret[] = $test;
+				}
+			}
+		}
+		return $ret;
+	}
+
+	private function gatherExtensionsOfClass($baseClassName)
+	{
+		$results = array();
+		$classMap = AutoLoader::getClassMap();
+		$classes = array_keys($classMap);
+		$report = '';
+		foreach ($classes as $class) {
+			if (class_exists($class)) {
+				$reflection = new ReflectionClass($class);
+				if ($reflection->isSubclassOf($baseClassName) && !$reflection->isAbstract()) {
+					$results[] = $reflection;
+				}
+			}
+		}
+		return $results;
+	}
 }

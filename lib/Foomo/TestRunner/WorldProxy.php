@@ -1,9 +1,35 @@
 <?php
 
+/*
+ * This file is part of the foomo Opensource Framework.
+ *
+ * The foomo Opensource Framework is free software: you can redistribute it
+ * and/or modify it under the terms of the GNU Lesser General Public License as
+ * published  by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * The foomo Opensource Framework is distributed in the hope that it will
+ * be useful, but WITHOUT ANY WARRANTY; without even the implied warranty
+ * of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License along with
+ * the foomo Opensource Framework. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 namespace Foomo\TestRunner;
 
-class WorldProxy {
+/**
+ * @link www.foomo.org
+ * @license www.gnu.org/licenses/lgpl.txt
+ * @author jan <jan@bestbytes.de>
+ */
+class WorldProxy
+{
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
 	/**
 	 * the actual test world
 	 *
@@ -11,28 +37,59 @@ class WorldProxy {
 	 */
 	public $world;
 	/**
-	 *
 	 * @var \ReflectionClass
 	 */
 	private $refl;
+	/**
+	 * @var array
+	 */
 	private $methodTemplatesShown = array();
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param stdClass $world
+	 * @param PHPUnit_Framework_TestCase $testCase
+	 */
 	public function __construct($world, \PHPUnit_Framework_TestCase $testCase)
 	{
 		$this->world = $world;
 		$this->world->testCase = $testCase;
 		$this->refl = new \ReflectionClass($this->world);
 	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
 	private function showStory($storyTemplateString_____, $storyTemplateArgs____)
 	{
 		extract($storyTemplateArgs____);
 		eval('?>' . $storyTemplateString_____ . PHP_EOL);
 	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Magic methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param string $name
+	 * @return string
+	 */
 	public function __get($name)
 	{
-		if(isset($this->world->$name)) {
+		if (isset($this->world->$name)) {
 			return $this->world->$name;
 		}
 	}
+
+	/**
+	 * @param string $name
+	 * @param array $args
+	 * @return Foomo\TestRunner\WorldProxy
+	 */
 	public function __call($name, $args)
 	{
 
@@ -91,14 +148,22 @@ class WorldProxy {
 				}
 				echo '  * @return ' . get_class($this->world) . PHP_EOL;
 				echo '  */' . PHP_EOL;
-				echo ' public function '.$name.'(' . implode(', ', $argsStringArray) . ') {' . PHP_EOL . 
-					 '   echo \'story step \' . __METHOD__ . \' needs to be implemented\' . PHP_EOL;' . PHP_EOL . 
+				echo ' public function '.$name.'(' . implode(', ', $argsStringArray) . ') {' . PHP_EOL .
+					 '   echo \'story step \' . __METHOD__ . \' needs to be implemented\' . PHP_EOL;' . PHP_EOL .
 					 ' }' . PHP_EOL;
 			}
 		}
 		return $this;
 	}
 
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @param string $methodName
+	 * @return string
+	 */
 	private function methodNameToStoryText($methodName)
 	{
 		$storyText = '';
