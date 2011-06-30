@@ -26,13 +26,29 @@ namespace Foomo\TestRunner\VerbosePrinter;
  */
 class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 {
+	//---------------------------------------------------------------------------------------------
+	// ~ Variables
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @var integer
+	 */
 	private $err = 0;
+	/**
+	 * @var integer
+	 */
 	private $indent = 0;
+	/**
+	 * @var array
+	 */
 	public $stats = array();
 	/**
 	 * @var PHPUnit_Framework_TestSuite
 	 */
 	private $currentSuite;
+	/**
+	 * @var PHPUnit_Framework_Test
+	 */
 	private $currentTest;
 	/**
 	 * @var Foomo\Log\Printer
@@ -42,8 +58,22 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	 * @var Foomo\TestRunner\Frontend\Model
 	 */
 	public $model;
+	/**
+	 * @var boolean
+	 */
 	private $errorContainerSent;
+	/**
+	 * @var boolean
+	 */
 	private $done = false;
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Constructor
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 *
+	 */
 	public function __construct()
 	{
 		$this->errorPrinter = new \Foomo\Log\Printer();
@@ -51,6 +81,14 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		\Foomo\Log\Logger::getInstance()->autoExitOnError = false;
 		register_shutdown_function(array($this, 'shutdownListener'));
 	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Public methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 *
+	 */
 	public function shutdownListener()
 	{
 		if(!$this->done) {
@@ -67,26 +105,10 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 			));
 		}
 	}
-	private function lineOut($line, $color = null)
-	{
-		if(strpos($line, PHP_EOL) !== false) {
-			foreach(explode(PHP_EOL, $line) as $subLine) {
-				$this->lineOut($subLine, $color);
-			}
-		} else {
-			if(empty($color)) {
-				echo  $line . PHP_EOL;
-			} else {
-				echo str_repeat(' &nbsp;', $this->indent) . '<span style="color:' . $color . '">' . $line . '</span><br>' . PHP_EOL;
-			}
 
-			//flush();
-		}
-		if(ob_get_length() > 0) {
-			ob_flush();
-			flush();
-		}
-	}
+	/**
+	 *
+	 */
 	public function startOutput()
 	{
 		$this->lineOut('<ul>');
@@ -115,13 +137,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		//$this->lineOut($e->getTraceAsString(),'red');
 		$this->indent --;
 	}
-	private function sendErrorContainer()
-	{
-		if(!$this->errorContainerSent) {
-			$this->errorContainerSent = true;
-			$this->lineOut('<div style="padding:10px;margin-left:20px;background-color:lightgrey">');
-		}
-	}
+
     /**
      * A failure occurred.
      *
@@ -183,11 +199,12 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 			$this->lineOut('<li><h1>Suite ' . $suite->getName() . '</h1><ul>');
 		}
 	}
-    /**
+
+	/**
      * A test suite ended.
      *
-     * @param  PHPUnit_Framework_TestSuite $suite
-     * @since  Method available since Release 2.2.0
+     * @param PHPUnit_Framework_TestSuite $suite
+     * @since Method available since Release 2.2.0
      */
     public function endTestSuite(\PHPUnit_Framework_TestSuite $suite){
 		$this->lineOut('</li></ul>');
@@ -196,7 +213,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
     /**
      * A test started.
      *
-     * @param  PHPUnit_Framework_Test $test
+     * @param PHPUnit_Framework_Test $test
      */
     public function startTest(\PHPUnit_Framework_Test $test)
 	{
@@ -212,24 +229,12 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		}
 		ob_start();
 	}
-	private function getAnchorName(\PHPUnit_Framework_Test $test)
-	{
-		return $test->getName();
-	}
-	/**
-	 *
-	 * @return \Foomo\MVC\URLHandler
-	 */
-	private function getUrlHandler()
-	{
-		$keys = array_keys(\Foomo\MVC::$handlers);
-		return \Foomo\MVC::$handlers[$keys[0]];
-	}
+
     /**
      * A test ended.
      *
-     * @param  PHPUnit_Framework_Test $test
-     * @param  float                  $time
+     * @param PHPUnit_Framework_Test $test
+     * @param float $time
      */
     public function endTest(\PHPUnit_Framework_Test $test, $time)
 	{
@@ -274,6 +279,81 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		}
 		$this->lineOut('</li>');
 	}
+
+	/**
+	 * @param Foomo\TestRunner\Result $result
+	 */
+	public function printResult(\Foomo\TestRunner\Result $result)
+	{
+		// there is some ob_ mess @the end of the process
+		$this->lineOut('</ul>');
+		$this->lineOut('<div id="testResult">');
+		if($result->result->failureCount() == 0) {
+			$doneClass = 'valid';
+		} else {
+			$doneClass = 'invalid';
+		}
+		$this->lineOut('<h1 class="' . $doneClass . '">Done</h1>');
+		$failures = $result->result->failures();
+		if(count($failures)>0) {
+			$this->lineOut('<h2>Failed tests</h2>');
+			$this->lineOut('<ul>');
+			foreach($failures as $error) {
+				$this->lineOut(
+					'<li><a href="#' . $this->getAnchorName($error->failedTest()) . '">' . $error->failedTest()->getName() . '</a></li>'
+				);
+			}
+			$this->lineOut('</ul>');
+		}
+		$this->lineOut(
+			'<pre>-----------------------------------------------------' . PHP_EOL .
+			'time       : ' . round($result->result->time(), 3) . ' s' . PHP_EOL .
+			'failed     : ' . $result->result->failureCount() . PHP_EOL .
+			'skipped    : ' . $result->result->skippedCount() . PHP_EOL .
+			//'incomplete : ' . $result->result->incompleteCount() . PHP_EOL .
+			'total      : ' . $result->result->count() . PHP_EOL
+		);
+		$this->lineOut('</pre></div></body></html>');
+		$this->done = true;
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Private methods
+	//---------------------------------------------------------------------------------------------
+	
+	/**
+	 *
+	 */
+	private function sendErrorContainer()
+	{
+		if(!$this->errorContainerSent) {
+			$this->errorContainerSent = true;
+			$this->lineOut('<div style="padding:10px;margin-left:20px;background-color:lightgrey">');
+		}
+	}
+
+	/**
+	 * @param PHPUnit_Framework_Test $test
+	 * @return string
+	 */
+	private function getAnchorName(\PHPUnit_Framework_Test $test)
+	{
+		return $test->getName();
+	}
+
+	/**
+	 * @return \Foomo\MVC\URLHandler
+	 */
+	private function getUrlHandler()
+	{
+		$keys = array_keys(\Foomo\MVC::$handlers);
+		return \Foomo\MVC::$handlers[$keys[0]];
+	}
+
+	/**
+	 * @staticvar int $errorI
+	 * @param array $error
+	 */
 	private function printError(array $error)
 	{
 		static $errorI = 0;
@@ -322,37 +402,29 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		$this->indent --;
 		$this->lineOut('</code>');
 	}
-	public function printResult(\Foomo\TestRunner\Result $result)
+
+	/**
+	 * @param string $line
+	 * @param string $color
+	 */
+	private function lineOut($line, $color=null)
 	{
-		// there is some ob_ mess @the end of the process
-		$this->lineOut('</ul>');
-		$this->lineOut('<div id="testResult">');
-		if($result->result->failureCount() == 0) {
-			$doneClass = 'valid';
-		} else {
-			$doneClass = 'invalid';
-		}
-		$this->lineOut('<h1 class="' . $doneClass . '">Done</h1>');
-		$failures = $result->result->failures();
-		if(count($failures)>0) {
-			$this->lineOut('<h2>Failed tests</h2>');
-			$this->lineOut('<ul>');
-			foreach($failures as $error) {
-				$this->lineOut(
-					'<li><a href="#' . $this->getAnchorName($error->failedTest()) . '">' . $error->failedTest()->getName() . '</a></li>'
-				);
+		if(strpos($line, PHP_EOL) !== false) {
+			foreach(explode(PHP_EOL, $line) as $subLine) {
+				$this->lineOut($subLine, $color);
 			}
-			$this->lineOut('</ul>');
+		} else {
+			if(empty($color)) {
+				echo  $line . PHP_EOL;
+			} else {
+				echo str_repeat(' &nbsp;', $this->indent) . '<span style="color:' . $color . '">' . $line . '</span><br>' . PHP_EOL;
+			}
+
+			//flush();
 		}
-		$this->lineOut(
-			'<pre>-----------------------------------------------------' . PHP_EOL .
-			'time       : ' . round($result->result->time(), 3) . ' s' . PHP_EOL .
-			'failed     : ' . $result->result->failureCount() . PHP_EOL .
-			'skipped    : ' . $result->result->skippedCount() . PHP_EOL .
-			//'incomplete : ' . $result->result->incompleteCount() . PHP_EOL .
-			'total      : ' . $result->result->count() . PHP_EOL
-		);
-		$this->lineOut('</pre></div></body></html>');
-		$this->done = true;
+		if(ob_get_length() > 0) {
+			ob_flush();
+			flush();
+		}
 	}
 }
