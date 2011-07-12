@@ -111,6 +111,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	 */
 	public function startOutput()
 	{
+		ini_set('memory_limit','256M');
 		$this->lineOut('<ul>');
 	}
 
@@ -347,7 +348,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	private function getUrlHandler()
 	{
 		$keys = array_keys(\Foomo\MVC::$handlers);
-		return \Foomo\MVC::$handlers[$keys[0]];
+		return \Foomo\MVC::$handlers[$keys[1]];
 	}
 
 	/**

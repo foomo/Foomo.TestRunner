@@ -63,7 +63,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	public static function getMenu()
 	{
 		return array(
-			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.TestRunner', 'Test Runner', self::NAME, 'Foomo.TestRunner', 'default', array(), '_blank')
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.TestRunner', 'Test Runner', self::NAME, 'Foomo.TestRunner')
 		);
 	}
 }

@@ -13,58 +13,55 @@ foreach(Foomo\Modules\Manager::getEnabledModules() as $enabledModuleName) {
 }
 $suiteTests = array();
 ?>
-<header>
-	<h1>TestRunner</h1>
+<div id="fullContent">
+	
+	<div class="rightBox">
+		<?= $view->link('Pack everything into a suite and run it all', 'runAll', array(), array('class' => 'linkButtonYellow')) ?>
+	</div>
+
+	<h2>TestRunner - Modules</h2>
+
 <? if(Foomo\Config::getMode()!= Foomo\Config::MODE_TEST): ?>
-		<h1>The test runner is only available, when the run mode is set to <i>test</i> -you are currently in <i><?= Foomo\Config::getMode(); ?></i></h1>
-	</header>
+
+	<div class="errorMessage">
+		The test runner is only available, when the run mode is set to <i>test</i> -you are currently in <i><?= Foomo\Config::getMode(); ?></i>
+	</div>
+	
 <? else: ?>
-	</header>
-	<nav id="menuMain">
-		<h2><?= $view->link('Pack everything into a suite and run it all', 'runAll') ?></h2>
-		<h2>Modules</h2>
-		<ul>
-			<? foreach($tests as $domain => $stuff):
-				if(!(count($stuff['tests'])>0 || count($stuff['suites'])>0)) {
-					continue;
-				}
-			?>
-				<li><a href="#<?= $domain ?>"><?= $domain ?></a></li>
-			<? endforeach; ?>
-		</ul>
-		<? if($model->showTestCases): ?>
-			<?= $view->link('hide test cases', 'default', array(false)) ?>
-		<? else: ?>
-			<?= $view->link('show test cases', 'default', array(true)) ?>
-		<? endif; ?>
-	</nav>
-	<div id="fullContent">
-		<div id="testRunnerMenu">
-			<table id="testRunnerMenuTable">
-				<thead>
-					<tr>
-						<td>Modules</td>
-						<td>Tests</td>
-						<td>Specs</td>
-						<td>Suites</td>
-					</tr>
-				</thead>
-				<tbody>
-					<? foreach($tests as $domain => $stuff): ?>
-					<? if(count($stuff['tests'])>0 || count($stuff['suites'])>0): ?>
-						<?
-						$domainId = 'domain' . $domain;
-						$domainTestId = $domainId . 'Tests';
-						$domainSuiteId = $domainId . 'Suites';
-						$allDomainSuiteTests = array();foreach($stuff['suites'] as $suiteName) {
-							$allDomainSuiteTests = array_merge($allDomainSuiteTests, $model->getSuiteTests($suiteName));
-						}
-						?>
-				<tr>
-					<td>
-						<h1><?= $view->link($domain, 'runModuleTests', array('moduleName' => $domain), array('title' => 'run all tests in this module', 'name' => $domain)) ?></h1>
-					</td>
-					<td>
+		
+	<? foreach($tests as $domain => $stuff): ?>
+	<? if(count($stuff['tests'])>0 || count($stuff['suites'])>0): ?>
+		<?
+		$domainId = 'domain' . $domain;
+		$domainTestId = $domainId . 'Tests';
+		$domainSuiteId = $domainId . 'Suites';
+		$allDomainSuiteTests = array();foreach($stuff['suites'] as $suiteName) {
+			$allDomainSuiteTests = array_merge($allDomainSuiteTests, $model->getSuiteTests($suiteName));
+		}
+		?>
+	
+	<div class="toggleBox">
+		<div class="toogleButton">
+			<div class="toggleOpenIcon">+</div>
+			<div class="toggleOpenContent"><?= $domain ?></div>
+		</div>
+		<div class="toggleContent">
+			
+			<?= $view->link('Test '.$domain, 'runModuleTests', array('moduleName' => $domain), array('title' => 'run all tests in this module', 'class' => 'linkButtonYellow')) ?>
+			
+			<div class="tabBox">
+				<div class="tabNavi">
+					<ul>
+						<li class="selected">Tests</li>
+						<li>Specs</li>
+						<li>Suites</li>
+					</ul>
+					<hr class="greyLine">
+				</div>
+				<div class="tabContentBox">
+				
+					<div class="tabContent tabContent-1 selected">
+					
 						<?
 						// how many non suite tests
 						$nonSuiteTests = array();
@@ -75,65 +72,91 @@ $suiteTests = array();
 						}
 						?>
 						<? if(count($nonSuiteTests)>0): ?>
-							<h2>tests (<?= count($nonSuiteTests) ?>)</h2>
-						<? else: ?>
-							<h2>no tests</h2>
-						<? endif; ?>
-						<ul>
-						<? foreach($nonSuiteTests as $testName): ?>
-							<li>
-								<?= $view->link($testName,  'runTest', array('name' => $testName ));?>
-								<?= $view->partial('testMethods', array('testName' => $testName)) ?>
-							</li>
-						<? endforeach; ?>
-						</ul>
-					</td>
-					<td>
-						<? if(count($stuff['specs'])>0): ?>
-							<h2>specs (<?= count($stuff['specs']) ?>)</h2>
-							<ul>
-								<? foreach($stuff['specs'] as $specName): ?>
-									<li>
-										<?= $view->link($specName,  'runTest', array('name' => $specName ));?>
-										<?= $view->partial('testMethods', array('testName' => $specName)) ?>
-									</li>
-
-								<? endforeach; ?>
-							</ul>
-						<? else: ?>
-							<h2>no specs</h2>
-						<? endif; ?>
-					</td>
-					<td>
-						<? if(count($stuff['suites'])>0): ?>
-							<h2>suites (<?= count($stuff['suites']) ?>)</h2>
-						<? else: ?>
-							<h2>no suites</h2>
-						<? endif; ?>
-						<ul id="<?= $domainSuiteId ?>">
-						<? foreach($stuff['suites'] as $suiteName): ?>
-							<li>
-								<h3><?
-										$suiteTests = $model->getSuiteTests($suiteName);
-									?><?= $view->link($suiteName, 'runSuite', array('name' => $suiteName ));?></h3>
-								<ul>
-									<? foreach($suiteTests as $testName): ?>
+							<h2>Tests (<?= count($nonSuiteTests) ?>)</h2>
+							
+							<div class="greyBox">
+								<div class="innerBox">
+									<ul>
+									<? foreach($nonSuiteTests as $testName): ?>
 										<li>
-											<?= $view->link($testName, 'runTest', array('name' => $testName )) ?>
+											<?= $view->link($testName,  'runTest', array('name' => $testName ));?>
 											<?= $view->partial('testMethods', array('testName' => $testName)) ?>
 										</li>
 									<? endforeach; ?>
-								</ul>
-							</li>
-						<? endforeach; ?>
-						</ul>
-					</td>
-				</tr>
-					<? endif; ?>
-					<? endforeach; ?>
-				</tbody>
-			</table>
+									</ul>
+								</div>
+							</div>
+						<? else: ?>
+							<h2>No tests!</h2>
+						<? endif; ?>
+
+						
+					</div>
+					
+					<div class="tabContent tabContent-2">
+					
+						<? if(count($stuff['specs'])>0): ?>
+							<h2>Specs (<?= count($stuff['specs']) ?>)</h2>
+							
+							<div class="greyBox">
+								<div class="innerBox">
+									<ul>
+										<? foreach($stuff['specs'] as $specName): ?>
+											<li>
+												<?= $view->link($specName,  'runTest', array('name' => $specName ));?>
+												<?= $view->partial('testMethods', array('testName' => $specName)) ?>
+											</li>
+
+										<? endforeach; ?>
+									</ul>
+								</div>
+							</div>
+						<? else: ?>
+							<h2>No specs!</h2>
+						<? endif; ?>
+						
+					</div>
+					
+					<div class="tabContent tabContent-3">
+					
+						<? if(count($stuff['suites'])>0): ?>
+							<h2>Suites (<?= count($stuff['suites']) ?>)</h2>
+							
+							<div class="greyBox">
+								<div class="innerBox">
+									<ul id="<?= $domainSuiteId ?>">
+									<? foreach($stuff['suites'] as $suiteName): ?>
+										<li>
+											<h3><?
+													$suiteTests = $model->getSuiteTests($suiteName);
+												?><?= $view->link($suiteName, 'runSuite', array('name' => $suiteName ));?></h3>
+											<ul>
+												<? foreach($suiteTests as $testName): ?>
+													<li>
+														<?= $view->link($testName, 'runTest', array('name' => $testName )) ?>
+														<?= $view->partial('testMethods', array('testName' => $testName)) ?>
+													</li>
+												<? endforeach; ?>
+											</ul>
+										</li>
+									<? endforeach; ?>
+									</ul>
+								</div>
+							</div>
+						<? else: ?>
+							<h2>No suites!</h2>
+						<? endif; ?>
+
+					</div>
+					
+				</div>
+			</div>
+						
 		</div>
 	</div>
+	
+	<? endif; ?>
+	<? endforeach; ?>
+
 <? endif; ?>
-<footer></footer>
+<div>

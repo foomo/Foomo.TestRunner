@@ -1,5 +1,6 @@
-@CHARSET "UTF-8";
-/** unit tests **/
+
+
+/*
 
 #testRunnerMenuTable ,#testRunnerMenuTable td {
 	border: 1px solid black;
@@ -20,11 +21,7 @@
 }
 
 
-#testRunnerUnitTestResult {
-	background-color: #eeeeee;
-	padding: 20px;
-	overflow: auto;
-}
+
 #testRunnerMenuLabel {
 	margin-top:0;
 }
@@ -32,6 +29,7 @@
 	padding-left:30px;
 	overflow: auto;
 }
+*/
 
 .error {
 	background-color: white;
@@ -45,6 +43,13 @@
 .story {
 	font-family: "Courier New";
 }
+
+#testRunnerUnitTestResult {
+	background-color: #eeeeee;
+	padding: 20px;
+	overflow: auto;
+}
+
 #testResult {
 	font-size: 16px;
 	padding: 10px;
@@ -56,3 +61,4 @@
 	color: red;
 	font-size: 24px;
 }
+
