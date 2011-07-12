@@ -39,16 +39,16 @@ class SampleSpec extends AbstractSpec
 	public function testScenarioSimpleBowling()
 	{
 		$this->world
-				->givenNewGame()
-				->whenPlayerRolls('Hansi', 10)
-				->whenBuddyDrinksBeer('Sebastian', 'Augustiner')
-				->whenBuddyDrinksBeer('Jan', 'Unertl')
-				->whenBuddySpillsBeer('Jan')
-				->thenTheBeerBillIs(7)
-				->thenTheScoreIs(10)
+			->givenNewGame()
+			->whenPlayerRolls('Hansi', 10)
+			->whenBuddyDrinksBeer('Sebastian', 'Augustiner')
+			->whenBuddyDrinksBeer('Jan', 'Unertl')
+			->whenBuddySpillsBeer('Jan')
+			->thenTheBeerBillIs(7)
+			->thenTheScoreIs(10)
 		;
 	}
-	
+
 	public function testScenarioUmtrunk()
 	{
 		$this->world
