@@ -49,7 +49,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	 */
 	public static function getDescription()
 	{
-		return 'brings phpUnit to radact';
+		return 'PHPUnit integration';
 	}
 
 	//---------------------------------------------------------------------------------------------

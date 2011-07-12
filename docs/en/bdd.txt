@@ -1,0 +1,222 @@
+Because we are not happy with the BDD implementation of PHPUnit \
+http://www.phpunit.de/manual/current/en/behaviour-driven-development.html we \
+wrote our own.
+
+++ Cookbook
+
++++ Create a world to host your stories
+
+Create a class, that provides the world, in which your stories take place. \
+By convention it has a public property testCase to which a \
+PHPUnit_Framework_TestCase will be assigned. Use the testCase to do assertions \
+within your then...() methods.
+
+<geshi type="php">
+<?= '<?php' ?>
+	
+
+class MyWorld {
+	/**
+	 * @var PHPUnit_Framework_TestCase
+	 */
+	public $testCase;
+}
+</geshi>
+
++++ Create a spec by extending Foomo\TestRunner\AbstractSpec
+
+Once you extend Foomo\TestRunner\AbstractSpec and wire the spec to the world \
+by calling setWorld() in setup() you are all set to start writing you \
+scenarios / stories.
+
+It is a vry good idea to annotate a phpdoc @property-read for $world to your \
+Spec.
+
+<geshi type="php">
+<?= '<?php' ?>
+
+/**
+ * @property-read MyWorld $world help your IDE to give you code completion
+ */
+class MySpec extends Foomo\TestRunner\AbstractSpec {
+	public function setUp()
+	{
+		$this->setWorld(new MyWorld());
+	}	
+}
+</geshi>
+
++++ Write a story
+
+By convention your story methods are called testScenario...(). Within a \
+testScenario method you are interaction with your world.
+
+# givenSth() puts the world in the start state
+# whenSth($foo, $bar) manipulates the world
+# when ...
+# thenSth() at the end of you story check if things are as expected
+
+The cool part is, that you do not have to have implemented any of the given...\
+, when..., then... methods when you write a testScenario method. The idea is , \
+that the AbstractSpec helps you with the necessary boilerplate as you will see \
+when you run you testScenario for the first time.
+
+As you write more scenarios to your world you will see that the growing domain \
+/ world specific vocabulary comes handy especially, when you have code \
+completion.
+
+<geshi type="php">
+<?= '<?php' ?>
+
+/**
+ * @property-read MyWorld $world help your IDE to give you code completion
+ */
+class MySpec extends Foomo\TestRunner\AbstractSpec {
+	public function setUp()
+	{
+		$this->setWorld(new MyWorld());
+	}	
+	public function testScenarioExample()
+	{
+		$this->world
+			->givenWeHaveApples(3)
+			->whenWeAddApples(4)
+			->thenWeHaveApples(7)
+		;
+	}
+}
+</geshi>
+
++++ Running it for the first time
+
+As said before you will get some help, when you run a scenario with an empty \
+world:
+
+<geshi type="php">
+<?= '<?php' ?>
+// from Foomo.TestRunner output
+
+// missing method on your world:
+/**
+ * @story given we have apples
+ * @param integer $arg_0 comment
+ * @return Foomo\TestRunner\SampleWorld
+ */
+public function givenWeHaveApples($arg_0) {
+	echo 'story step ' . __METHOD__ . ' needs to be implemented' . PHP_EOL;
+}
+// missing method on your world:
+/**
+ * @story when we add apples
+ * @param integer $arg_0 comment
+ * @return Foomo\TestRunner\SampleWorld
+ */
+public function whenWeAddApples($arg_0) {
+	echo 'story step ' . __METHOD__ . ' needs to be implemented' . PHP_EOL;
+}
+// missing method on your world:
+/**
+ * @story then we have apples
+ * @param integer $arg_0 comment
+ * @return Foomo\TestRunner\SampleWorld
+ */
+public function thenWeHaveApples($arg_0) {
+	echo 'story step ' . __METHOD__ . ' needs to be implemented' . PHP_EOL;
+}
+</geshi>
+
+
+
++++ Implement the necessary vocabulary in your world
+
+The @story annotation is where you tell the output the string is actually \
+being evaluated (the only eval in the whole framework ...) and the parameters \
+of the called method are available.
+
+<geshi type="php">
+<?= '<?php' ?>
+
+	
+class MyWorld {
+	/**
+	 * @var PHPUnit_Framework_TestCase
+	 */
+	public $testCase;
+	
+	/**
+	 * total number of apples
+	 * 
+	 * @var integer
+	 */
+	public $totalNumberOfApples;
+	/**
+	 * @story given we have <?= '<?= $numberOfApples ?>' ?> apples
+	 * 
+	 * @param integer $numberOfApples comment
+	 * 
+	 * @return Foomo\TestRunner\SampleWorld
+	 */
+	public function givenWeHaveApples($numberOfApples) 
+	{
+		$this->totalNumberOfApples = $numberOfApples;
+	}
+	/**
+	 * @story when we add <?= '<?= $numberOfApples ?>' ?> apples
+	 * 
+	 * @param integer $numberOfApples comment
+	 * 
+	 * @return Foomo\TestRunner\SampleWorld
+	 */
+	public function whenWeAddApples($numberOfApples) 
+	{
+		$this->totalNumberOfApples += $numberOfApples;
+	}
+	/**
+	 * @story then we have <?= '<?= $numberOfApples ?>' ?> apples
+	 * 
+	 * @param integer $numberOfApples comment
+	 * 
+	 * @return Foomo\TestRunner\SampleWorld
+	 */
+	public function thenWeHaveApples($numberOfApples) 
+	{
+		$this->testCase->assertEquals($numberOfApples, $this->totalNumberOfApples);
+	}
+}
+</geshi>
+
+And that is the TestRunner output you will get:
+
+<geshi type="text">
+testScenarioExample
+ given we have 3 apples
+ when we add 4 apples
+ then we have apples 7
+OK 0.003 s
+</geshi>
+
+++ Example
+
+Spec:
+
+<geshi type="php" file="<?= 
+	Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . 
+	Foomo\TestRunner\Module::NAME . DIRECTORY_SEPARATOR . 
+	'tests' . DIRECTORY_SEPARATOR . 
+	'Foomo' . DIRECTORY_SEPARATOR . 
+	'TestRunner' . DIRECTORY_SEPARATOR .
+	'SampleSpec.php'  
+?>">
+</geshi>
+
+World:
+
+<geshi type="php" file="<?= 
+	Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . 
+	Foomo\TestRunner\Module::NAME . DIRECTORY_SEPARATOR . 
+	'tests' . DIRECTORY_SEPARATOR . 
+	'Foomo' . DIRECTORY_SEPARATOR . 
+	'TestRunner' . DIRECTORY_SEPARATOR .
+	'SampleWorld.php'  
+?>">
+</geshi>

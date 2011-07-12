@@ -61,14 +61,14 @@ Extending **FoomoTestSuite** lets you group unit tests into suites. All Class ex
  * Example test suite
  *
  */
-class ExampleTestSuite extends FoomoTestSuite {
+class ExampleTestSuite extends Foomo\TestRunner\Suite {
 	/**
 	 * get a list of class name, which will be 
 	 * accumulated into a test as a suite
 	 *
 	 * @return array
 	 */
-	public function radTestSuiteGetList()
+	public function foomoTestSuiteGetList()
 	{
  		return array('MyExampleTest', 'MyOtherUnitTest', 'YetAnotherUnitTest');
 	}
