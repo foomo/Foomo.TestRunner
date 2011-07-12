@@ -24,7 +24,7 @@ namespace Foomo\TestRunner;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-class Module extends \Foomo\Modules\ModuleBase
+class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\ToolboxInterface
 {
 	//---------------------------------------------------------------------------------------------
 	// ~ Constants
@@ -50,5 +50,20 @@ class Module extends \Foomo\Modules\ModuleBase
 	public static function getDescription()
 	{
 		return 'brings phpUnit to radact';
+	}
+
+	//---------------------------------------------------------------------------------------------
+	// ~ Toolbox interface methods
+	//---------------------------------------------------------------------------------------------
+
+	/**
+	 * @internal
+	 * @return array
+	 */
+	public static function getMenu()
+	{
+		return array(
+			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.TestRunner', 'Test Runner', self::NAME, 'Foomo.TestRunner', 'default', array(), '_blank')
+		);
 	}
 }
