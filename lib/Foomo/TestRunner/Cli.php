@@ -93,7 +93,7 @@ class Cli
 	}
 
 	/**
-	 * run unit tests for all enabled modules including radact core
+	 * run unit tests for all enabled modules including foomo core
 	 *
 	 * @param string $reportDirectory where to put the report xml-files
 	 */

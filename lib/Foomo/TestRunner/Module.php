@@ -49,6 +49,6 @@ class Module extends \Foomo\Modules\ModuleBase
 	 */
 	public static function getDescription()
 	{
-		return 'brings phpUnit to radact';
+		return 'PHPUnit integration';
 	}
 }
