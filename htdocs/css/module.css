@@ -1,64 +1,82 @@
 
-
-/*
-
-#testRunnerMenuTable ,#testRunnerMenuTable td {
-	border: 1px solid black;
-}
-#testRunnerMenuTable {
-	width: 800px;
-}
-#testRunnerMenuTable THEAD {
-	font-size : large;
-	font-weight: bold;
-}
-
-.tableOdd {
-	background-color: #ACACAC;
-}
-.tableEven {
-	background-color: #EFEFEF;
-}
-
-
-
-#testRunnerMenuLabel {
-	margin-top:0;
-}
-#testRunnerMenu {
-	padding-left:30px;
-	overflow: auto;
-}
-*/
-
-.error {
-	background-color: white;
-	padding:5px;
-}
-.errorTrace {
-	background-color: white;
-	padding:5px;
-	display:none;
-}
 .story {
 	font-family: "Courier New";
 }
 
-#testRunnerUnitTestResult {
-	background-color: #eeeeee;
-	padding: 20px;
-	overflow: auto;
+
+
+.resultContainer {
+	position:relative;
+	clear: both;
+	margin: 10px 0;
+	padding: 1%;
+	width: 98%;
+	border: 1px solid #d7d7d7;
+	background: #ffffff;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 
-#testResult {
-	font-size: 16px;
-	padding: 10px;
-	margin: 20px;
-	background-color: lightgrey;
+
+
+.errorContainer {
+	position:relative;
+	clear: both;
+	margin: 10px 0;
+	padding: 1%;
+	width: 98%;
+	border: 1px solid #d7d7d7;
+	background: #e8e8e8;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 
-#sthReallyBad {
-	color: red;
+.error {
+	position:relative;
+	clear: both;
+	padding: 1%;
+	width: 98%;
+	color: #c50707;
+	border: 1px solid #d7d7d7;
+	background: #f5e9e9;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+}
+
+.errorTrace {
+	position:relative;
+	clear: both;
+	padding: 1%;
+	width: 98%;
+	color: #c50707;
+	border: 1px solid #d7d7d7;
+	background: #f5e9e9;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
+	display: none;
+}
+
+.sthReallyBad {
+	color: #c50707;
 	font-size: 24px;
+}
+
+
+
+.testResult {
+	position:relative;
+	clear: both;
+	margin: 30px 0;
+	padding: 1%;
+	width: 98%;
+	border: 1px solid #d7d7d7;
+	background: #e8e8e8;
+	border-radius: 5px;
+	-webkit-border-radius: 5px;
+	-moz-border-radius: 5px;
 }
 

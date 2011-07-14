@@ -94,7 +94,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		if(!$this->done) {
 			// sth really bad must have happened
 			$this->sendErrorContainer();
-			$this->lineOut('<div id="sthReallyBad">Something really bad happened - shutting down (check your error log):</div>');
+			$this->lineOut('<div class="sthReallyBad">Something really bad happened - shutting down (check your error log):</div>');
 			$lastError = error_get_last();
 			$this->printError(array(
 				'errno' => $lastError['type'],
@@ -112,7 +112,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	public function startOutput()
 	{
 		ini_set('memory_limit','256M');
-		$this->lineOut('<ul>');
+		$this->lineOut('<div class="innerBox"><div class="rightBox" style="top:20px;right:10px;"><a href="" class="linkButtonYellow backButton">Back</a></div><ul>');
 	}
 
 	/**
@@ -135,7 +135,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 			)
 		);
 
-		//$this->lineOut($e->getTraceAsString(),'red');
+		//$this->lineOut($e->getTraceAsString(),'#c50707');
 		$this->indent --;
 	}
 
@@ -149,8 +149,8 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
     public function addFailure(\PHPUnit_Framework_Test $test, \PHPUnit_Framework_AssertionFailedError $e, $time){
 		$this->sendErrorContainer();
 		$this->err ++;
-		$this->lineOut(htmlspecialchars($e->getMessage()), 'red');
-		$this->lineOut('FAIL', 'red');
+		$this->lineOut(htmlspecialchars($e->getMessage()), '#c50707');
+		$this->lineOut('FAIL', '#c50707');
 	}
 
     /**
@@ -224,9 +224,9 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		$this->err = 0;
 		$this->indent = 0;
 		if($this->testExists($this->currentSuite->getName())) {
-			$this->lineOut('<li><span><a name="' . $this->getAnchorName($test) . '" href="' . $this->getUrlHandler()->renderURL('Foomo\\TestRunner\\Frontend\\Controller', 'runTestCase', array($this->currentSuite->getName(), $this->currentTest->getName())) . '">' . $test->getName() . '</a></span>');
+			$this->lineOut('<li class="resultContainer" style="margin:30px 0;"><h3><a name="' . $this->getAnchorName($test) . '" href="' . $this->getUrlHandler()->renderURL('Foomo\\TestRunner\\Frontend\\Controller', 'runTestCase', array($this->currentSuite->getName(), $this->currentTest->getName())) . '">' . $test->getName() . '</a></h3>');
 		} else {
-			$this->lineOut('<li><span>' . $test->getName() . '</span>');
+			$this->lineOut('<li class="resultContainer" style="margin:30px 0;"><h3>' . $test->getName() . '</h3>');
 		}
 		ob_start();
 	}
@@ -288,7 +288,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	{
 		// there is some ob_ mess @the end of the process
 		$this->lineOut('</ul>');
-		$this->lineOut('<div id="testResult">');
+		$this->lineOut('<div class="testResult">');
 		if($result->result->failureCount() == 0) {
 			$doneClass = 'valid';
 		} else {
@@ -314,7 +314,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 			//'incomplete : ' . $result->result->incompleteCount() . PHP_EOL .
 			'total      : ' . $result->result->count() . PHP_EOL
 		);
-		$this->lineOut('</pre></div></body></html>');
+		$this->lineOut('</pre></div></div></body></html>');
 		$this->done = true;
 	}
 
@@ -329,7 +329,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	{
 		if(!$this->errorContainerSent) {
 			$this->errorContainerSent = true;
-			$this->lineOut('<div style="padding:10px;margin-left:20px;background-color:lightgrey">');
+			$this->lineOut('<div class="errorContainer">');
 		}
 	}
 
@@ -366,11 +366,11 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 			'<div class="error" onclick="var el=document.getElementById(\'' . $errId . '\');el.style.display=(el.style.display==\'none\')?\'block\':\'none\'">' . $this->errorPrinter->phpErrorIntToString($error['errno']). ': ' . $error['errstr'] . PHP_EOL .
 			'line: ' . $error['errline'] . PHP_EOL .
 			'file: ' . $error['errfile']. '</div>',
-			'red');
+			'#c50707');
 		$this->indent ++;
 		$this->lineOut('<div id="' . $errId . '" class="errorTrace">');
 		foreach($error['errtrace'] as $trace) {
-			$this->lineOut('--------------------------------------', 'red');
+			$this->lineOut('--------------------------------------', '#c50707');
 			$func = '';
 			if(!empty($trace['class'])) {
 				$func = 'method   : ' . $trace['class'] . $trace['type'] .$trace['function'];
@@ -390,12 +390,12 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 			} else {
 				$args = '';
 			}
-			$this->lineOut($func . '(' . $args . ')', 'red');
+			$this->lineOut($func . '(' . $args . ')', '#c50707');
 			if(!empty($trace['file'])) {
 				$this->lineOut(
 					'file     : ' . $trace['file'] . PHP_EOL .
 					'line     : ' . $trace['line'],
-					'red'
+					'#c50707'
 				);
 			}
 		}
