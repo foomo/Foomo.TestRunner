@@ -44,9 +44,9 @@ class Controller
 	/**
 	 * @param boolean $details
 	 */
-	public function actionDefault($details=true)
+	public function actionDefault()
 	{
-		$this->model->showTestCases = $details;
+		// $this->model->showTestCases = $details;
 	}
 
 	/**
