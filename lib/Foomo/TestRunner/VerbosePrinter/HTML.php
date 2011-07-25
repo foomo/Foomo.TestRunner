@@ -134,8 +134,6 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 				'errtrace' => $e->getTrace()
 			)
 		);
-
-		//$this->lineOut($e->getTraceAsString(),'#c50707');
 		$this->indent --;
 	}
 
@@ -146,11 +144,12 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
      * @param  PHPUnit_Framework_AssertionFailedError $e
      * @param  float                                  $time
      */
-    public function addFailure(\PHPUnit_Framework_Test $test, \PHPUnit_Framework_AssertionFailedError $e, $time){
+    public function addFailure(\PHPUnit_Framework_Test $test, \PHPUnit_Framework_AssertionFailedError $e, $time)
+	{
 		$this->sendErrorContainer();
 		$this->err ++;
-		$this->lineOut(htmlspecialchars($e->getMessage()), '#c50707');
-		$this->lineOut('FAIL', '#c50707');
+		$this->lineOut(htmlspecialchars($e->getMessage()), '#c50707', false);
+		$this->lineOut('FAIL', '#c50707', false);
 	}
 
     /**
@@ -160,11 +159,12 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
      * @param  Exception              $e
      * @param  float                  $time
      */
-    public function addIncompleteTest(\PHPUnit_Framework_Test $test, \Exception $e, $time){
+    public function addIncompleteTest(\PHPUnit_Framework_Test $test, \Exception $e, $time)
+	{
 		$this->sendErrorContainer();
 		$this->err ++;
-		$this->lineOut(htmlspecialchars($e->getMessage()), 'grey');
-		$this->lineOut('INCOMPLETE', 'grey');
+		$this->lineOut(htmlspecialchars($e->getMessage()), 'grey', 'false');
+		$this->lineOut('INCOMPLETE', 'grey', false);
 	}
 
     /**
@@ -175,11 +175,12 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
      * @param  float                  $time
      * @since  Method available since Release 3.0.0
      */
-    public function addSkippedTest(\PHPUnit_Framework_Test $test, \Exception $e, $time){
+    public function addSkippedTest(\PHPUnit_Framework_Test $test, \Exception $e, $time)
+	{
 		$this->sendErrorContainer();
 		$this->err ++;
-		$this->lineOut($e->getMessage(), 'grey');
-		$this->lineOut('SKIPPED', 'grey');
+		$this->lineOut($e->getMessage(), 'grey', false);
+		$this->lineOut('SKIPPED', 'grey', false);
 	}
 
     /**
@@ -188,14 +189,15 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
      * @param  PHPUnit_Framework_TestSuite $suite
      * @since  Method available since Release 2.2.0
      */
-    public function startTestSuite(\PHPUnit_Framework_TestSuite $suite){
+    public function startTestSuite(\PHPUnit_Framework_TestSuite $suite)
+	{
 		$this->currentSuite = $suite;
 		//$view = \Foomo\MVC\View::$viewStack[count(\Foomo\MVC\View::$viewStack)-1];
 		if(
 			$this->suiteExists($this->currentSuite->getName()) ||
 			$this->testExists($this->currentSuite->getName())
 		) {
-			$this->lineOut('<li><h1><a href="'.$this->getUrlHandler()->renderUrl('Foomo\\TestRunner\\Frontend\\Controller', 'runTest', array($this->currentSuite->getName())).'">Suite ' . $this->currentSuite->getName() . '</a></h1><ul>');
+			$this->lineOut('<li><h1><a href="' . $this->getUrlHandler()->renderUrl('Foomo\\TestRunner\\Frontend\\Controller', 'runTest', array($this->currentSuite->getName())) . '">Suite ' . $this->currentSuite->getName() . '</a></h1><ul>');
 		} else {
 			$this->lineOut('<li><h1>Suite ' . $suite->getName() . '</h1><ul>');
 		}
@@ -207,7 +209,8 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
      * @param PHPUnit_Framework_TestSuite $suite
      * @since Method available since Release 2.2.0
      */
-    public function endTestSuite(\PHPUnit_Framework_TestSuite $suite){
+    public function endTestSuite(\PHPUnit_Framework_TestSuite $suite)
+	{
 		$this->lineOut('</li></ul>');
 	}
 
@@ -239,6 +242,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
      */
     public function endTest(\PHPUnit_Framework_Test $test, $time)
 	{
+		// $this->lineOut('<!-- ' . __METHOD__ . ' -->');
 		$lines = ob_get_clean();
 		if(strlen(trim($lines))>0) {
 			$this->sendErrorContainer();
@@ -251,6 +255,9 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		}
 		$this->indent ++;
 		foreach($lines as $line) {
+			if(strpos($line, self::QUALIFIED_LINE_START) !== 0) {
+				$line = htmlspecialchars($line);
+			}
 			if(strlen($line) > 0) {
 				if($this->isStoryLine($line)) {
 					$this->lineOut('<b>' . $line . '</b>', 'black');
@@ -329,7 +336,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	{
 		if(!$this->errorContainerSent) {
 			$this->errorContainerSent = true;
-			$this->lineOut('<div class="errorContainer">');
+			$this->lineOut('<div class="errorContainer">', null, false);
 		}
 	}
 
@@ -361,16 +368,18 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 
 		$errorI ++;
 		$errId = 'err-' . $errorI;
-		$this->lineOut('<code>');
+		$this->lineOut('<code>', null, false);
 		$this->lineOut(
 			'<div class="error" onclick="var el=document.getElementById(\'' . $errId . '\');el.style.display=(el.style.display==\'none\')?\'block\':\'none\'">' . $this->errorPrinter->phpErrorIntToString($error['errno']). ': ' . $error['errstr'] . PHP_EOL .
 			'line: ' . $error['errline'] . PHP_EOL .
 			'file: ' . $error['errfile']. '</div>',
-			'#c50707');
+			'#c50707',
+			false
+		);
 		$this->indent ++;
-		$this->lineOut('<div id="' . $errId . '" class="errorTrace">');
+		$this->lineOut('<div id="' . $errId . '" class="errorTrace">', null, false);
 		foreach($error['errtrace'] as $trace) {
-			$this->lineOut('--------------------------------------', '#c50707');
+			$this->lineOut('--------------------------------------', '#c50707', false);
 			$func = '';
 			if(!empty($trace['class'])) {
 				$func = 'method   : ' . $trace['class'] . $trace['type'] .$trace['function'];
@@ -390,40 +399,42 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 			} else {
 				$args = '';
 			}
-			$this->lineOut($func . '(' . $args . ')', '#c50707');
+			$this->lineOut($func . '(' . $args . ')', '#c50707', false);
 			if(!empty($trace['file'])) {
 				$this->lineOut(
 					'file     : ' . $trace['file'] . PHP_EOL .
 					'line     : ' . $trace['line'],
-					'#c50707'
+					'#c50707',
+					false
 				);
 			}
 		}
-		$this->lineOut('</div>');
+		$this->lineOut('</div>', null, false);
 		$this->indent --;
-		$this->lineOut('</code>');
+		$this->lineOut('</code>', null, false);
 	}
-
+	const QUALIFIED_LINE_START = '<!-- qualified output -->';
 	/**
 	 * @param string $line
 	 * @param string $color
 	 */
-	private function lineOut($line, $color=null)
+	private function lineOut($line, $color = null, $flush = true)
 	{
 		if(strpos($line, PHP_EOL) !== false) {
 			foreach(explode(PHP_EOL, $line) as $subLine) {
-				$this->lineOut($subLine, $color);
+				$this->lineOut($subLine, $color, $flush);
 			}
 		} else {
+			echo self::QUALIFIED_LINE_START;
 			if(empty($color)) {
-				echo  $line . PHP_EOL;
+				echo str_repeat(' &nbsp;', ($this->indent>0)?$this->indent:0) . $line . PHP_EOL;
 			} else {
 				echo str_repeat(' &nbsp;', $this->indent) . '<span style="color:' . $color . '">' . $line . '</span><br>' . PHP_EOL;
 			}
 
 			//flush();
 		}
-		if(ob_get_length() > 0) {
+		if($flush && ob_get_length() > 0) {
 			ob_flush();
 			flush();
 		}

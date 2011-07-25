@@ -67,7 +67,18 @@ class WorldProxy
 	private function showStory($storyTemplateString_____, $storyTemplateArgs____)
 	{
 		extract($storyTemplateArgs____);
-		eval('?>' . $storyTemplateString_____ . PHP_EOL);
+		
+		try {
+			ob_start();
+			eval('?>' . $storyTemplateString_____ . PHP_EOL);
+			$buffer = ob_get_clean();
+			echo $buffer;
+			if(substr($buffer,-1) != PHP_EOL) {
+				echo PHP_EOL;
+			}
+		} catch(\Exception $e) {
+			echo 'could not run story "' . $storyTemplateString_____ . '" => ' . $e->getMessage() . PHP_EOL;
+		}
 	}
 
 	//---------------------------------------------------------------------------------------------
@@ -121,7 +132,7 @@ class WorldProxy
 			if(!$storyFound) {
 				//var_dump('no story', $name, $docComment);
 			}
-			call_user_func_array(array($this->world,$name), $args);
+			$ret = call_user_func_array(array($this->world,$name), $args);
 		} else {
 			// that would be nice, but it terminates test execution and that is not nice
 			// $this->world->testCase->markTestIncomplete();
@@ -155,7 +166,11 @@ class WorldProxy
 					 ' }' . PHP_EOL;
 			}
 		}
-		return $this;
+		if(isset($ret) && !is_null($ret)) {
+			return $ret;
+		} else {
+			return $this;
+		}
 	}
 
 	//---------------------------------------------------------------------------------------------
