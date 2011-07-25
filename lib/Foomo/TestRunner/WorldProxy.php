@@ -107,7 +107,9 @@ class WorldProxy
 					$argsHash = array();
 					foreach($methodRefl->getParameters() as $parameterRefl) {
 						/* @var $parameter \ReflectionParameter */
-						$argsHash[$parameterRefl->getName()] = $args[$i];
+						if(isset($args[$i])) {
+							$argsHash[$parameterRefl->getName()] = $args[$i];
+						}
 						$i ++;
 					}
 					$this->showStory(substr($line, strlen($needle)), $argsHash);
