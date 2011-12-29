@@ -146,6 +146,8 @@ class Model extends \Foomo\TestRunner
 		try {
 			clearstatcache();
 			$startSize = filesize(ini_get('error_log'));
+			\PHPUnit_Framework_Error_Notice::$enabled = true;
+			\PHPUnit_Framework_Error_Warning::$enabled = true;
 			set_error_handler(array(__CLASS__, 'handleError'), E_ALL);
 			self::errorBufferHidingHack(false);
 			ob_start();
@@ -192,8 +194,14 @@ class Model extends \Foomo\TestRunner
 		$name = '';
 		switch($errno) {
 			case E_USER_NOTICE:
+				if(!\PHPUnit_Framework_Error_Notice::$enabled) {
+					return true;
+				}
 				$name = 'E_USER_NOTICE';
 			case E_USER_WARNING:
+				if(!\PHPUnit_Framework_Error_Warning::$enabled) {
+					return true;
+				}
 				if(empty($name)) {
 					$name = 'E_USER_WARNING';
 				}
