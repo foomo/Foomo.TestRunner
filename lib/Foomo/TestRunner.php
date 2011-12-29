@@ -211,7 +211,8 @@ class TestRunner
 		$classRefl = new ReflectionClass($className);
 		$ret = array();
 		foreach ($classRefl->getMethods() as $method) {
-			if (strpos($method->getName(), 'test') === 0 && !$method->isAbstract() && !$method->isStatic()) {
+			/* @var $method \ReflectionMethod */
+			if (strpos($method->getName(), 'test') === 0 && !$method->isAbstract() && !$method->isStatic() && $method->getDeclaringClass()->getName() == $className) {
 				$ret[] = $method->getName();
 			}
 		}
