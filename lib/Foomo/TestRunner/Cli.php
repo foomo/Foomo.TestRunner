@@ -102,11 +102,11 @@ class Cli
 		$modules = Foomo\Modules\Manager::getEnabledModules();
 
 		set_error_handler(array('Foomo\\TestRunner\\Frontend\\Model', 'handleError'), E_ALL);
-		$result = new PHPUnit_Framework_TestResult;
+		$result = new \PHPUnit_Framework_TestResult;
 		$logFile = $reportDirectory . DIRECTORY_SEPARATOR . 'TestReport.xml';
 		$result->collectCodeCoverageInformation(true);
 		$result->addListener(new PHPUnit_Util_Log_JUnit($logFile));
-		$suite = new PHPUnit_Framework_TestSuite('Testsuite for all modules and the core');
+		$suite = new \PHPUnit_Framework_TestSuite('Testsuite for all modules and the core');
 		foreach($modules as $moduleName) {
 			$testClasses = $this->model->getModuleTests($moduleName);
 			foreach($testClasses as $testClass) {
@@ -115,7 +115,8 @@ class Cli
 		}
 		$suite->run($result);
 		$result->flushListeners();
-		$writer = new PHPUnit_Util_Log_CodeCoverage_XML_Clover($reportDirectory . DIRECTORY_SEPARATOR . 'Clover.xml');
+		//new \PHP_CodeCoverage_Report_Clover()
+		$writer = new \PHPUnit_Util_Log_CodeCoverage_XML_Clove($reportDirectory . DIRECTORY_SEPARATOR . 'Clover.xml');
 		$writer->process($result);
 		PHPUnit_Util_Report::render($result, $reportDirectory . DIRECTORY_SEPARATOR . 'coverage');
 	}
@@ -142,9 +143,13 @@ class Cli
 		}
 		$suite->run($result);
 		$result->flushListeners();
+		
+		/*
 		$writer = new \PHPUnit_Util_Log_CodeCoverage_XML_Clover($base . '-Clover.xml');
+		new \PHP_CodeCoverage_Report_Clover();
 		$writer->process($result);
 		\PHPUnit_Util_Report::render($result, $base . '-Clover', $moduleName);
+		 */
 	}
 	/**
 	 * list tests and test suites of module(s)
