@@ -355,7 +355,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	private function getUrlHandler()
 	{
 		$keys = array_keys(\Foomo\MVC::$handlers);
-		return \Foomo\MVC::$handlers[$keys[1]];
+		return \Foomo\MVC::$handlers[$keys[count($keys)-1]];
 	}
 
 	/**
