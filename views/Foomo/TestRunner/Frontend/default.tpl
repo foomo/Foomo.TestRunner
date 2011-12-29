@@ -30,7 +30,7 @@ $suiteTests = array();
 <? else: ?>
 		
 	<? foreach($tests as $domain => $stuff): ?>
-	<? if(count($stuff['tests'])>0 || count($stuff['suites'])>0): ?>
+	<? if(count($stuff['tests'])>0 || count($stuff['suites'])>0 || count($stuff['specs'])>0): ?>
 		<?
 		$domainId = 'domain' . $domain;
 		$domainTestId = $domainId . 'Tests';
