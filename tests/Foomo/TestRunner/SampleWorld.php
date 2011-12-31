@@ -67,6 +67,7 @@ class SampleWorld
 	 */
 	public function whenPlayerRolls($arg_0, $arg_1)
 	{
+		var_dump($arg_0);
 		$this->score += $arg_1;
 	}
 
@@ -78,7 +79,7 @@ class SampleWorld
 	 */
 	public function thenTheScoreIs($arg_0)
 	{
-		$this->testCase->assertEquals($arg_0, $this->score);
+
 	}
 
 	/**

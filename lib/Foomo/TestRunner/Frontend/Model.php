@@ -145,7 +145,12 @@ class Model extends \Foomo\TestRunner
 		}
 		try {
 			clearstatcache();
-			$startSize = filesize(ini_get('error_log'));
+			if(file_exists($errorLogFilename = ini_get('error_log'))) {
+				$startSize = filesize($errorLogFilename);
+			} else {
+				$startSize = 0;
+			}
+
 			\PHPUnit_Framework_Error_Notice::$enabled = true;
 			\PHPUnit_Framework_Error_Warning::$enabled = true;
 			set_error_handler(array(__CLASS__, 'handleError'), E_ALL);
@@ -173,16 +178,20 @@ class Model extends \Foomo\TestRunner
 	private function getPhpErrors($startSize)
 	{
 		clearstatcache();
-		$length = filesize(ini_get('error_log')) - $startSize;
-		if($length > 0) {
-			$fp = fopen(ini_get('error_log'), 'r');
-			fseek($fp, $startSize);
-			$errors = fread($fp, $length);
-			fclose($fp);
+		if(file_exists($errorLogFilename = ini_get('error_log'))) {
+			$length = filesize($errorLogFilename) - $startSize;
+			if($length > 0) {
+				$fp = fopen($errorLogFilename, 'r');
+				fseek($fp, $startSize);
+				$errors = fread($fp, $length);
+				fclose($fp);
+			} else {
+				$errors = '';
+			}
+			return $errors;
 		} else {
-			$errors = '';
+			return '';
 		}
-		return $errors;
 	}
 
 	//---------------------------------------------------------------------------------------------

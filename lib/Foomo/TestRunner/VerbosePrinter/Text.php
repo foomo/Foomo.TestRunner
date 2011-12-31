@@ -50,50 +50,13 @@ class Text extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @var PHPUnit_Framework_TestSuite
-	 */
-	private $currentSuite;
-	/**
-	 *
-	 * @var PHPUnit_Framework_Test
-	 */
-	private $currentTest;
-	/**
-	 * @var Foomo\Log\Printer
-	 */
-	private $errorPrinter;
-	/**
-	 * @var int
-	 */
-	private $err = 0;
-	/**
-	 * @var boolean
-	 */
-	private $errorContainerSent;
-	/**
-	 * @var boolean
-	 */
-	private $done = false;
-	/**
 	 * @var boolean
 	 */
 	private $lastLineWasSeparator = false;
 	/**
-	 * @var int
-	 */
-	private $indent = 0;
-	/**
 	 * @var boolean
 	 */
 	public $useColors = true;
-	/**
-	 * @var array
-	 */
-	public $stats = array();
-	/**
-	 * @var Foomo\TestRunner\Frontend\Model
-	 */
-	public $model;
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Constructor
@@ -244,12 +207,8 @@ class Text extends AbstractPrinter implements \PHPUnit_Framework_TestListener
      */
     public function startTest(\PHPUnit_Framework_Test $test)
 	{
+		parent::startTest($test);
 		$this->lineOut($this->getLineSeparator());
-		$this->currentTest = $test;
-		$this->errorContainerSent = false;
-		\Foomo\TestRunner\Frontend\Model::$errorBuffer = array();
-		$this->err = 0;
-		//$this->indent = 0;
 		if($this->testExists($this->currentSuite->getName())) {
 			$this->lineOut($test->getName());
 		}
@@ -266,8 +225,9 @@ class Text extends AbstractPrinter implements \PHPUnit_Framework_TestListener
     public function endTest(\PHPUnit_Framework_Test $test, $time)
 	{
 		$lines = ob_get_clean();
-		$lines = explode(PHP_EOL, $lines);
+		$lines .= $this->bufferOutput;
 		$isSpec = $this->isSpec($test);
+		$lines = explode(PHP_EOL, $lines);
 		if($isSpec) {
 			$this->lineOut('', self::COLOR_BLACK, self::BG_COLOR_GREY);
 		}

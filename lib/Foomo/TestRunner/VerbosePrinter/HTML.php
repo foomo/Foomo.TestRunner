@@ -30,43 +30,6 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	// ~ Variables
 	//---------------------------------------------------------------------------------------------
 
-	/**
-	 * @var integer
-	 */
-	private $err = 0;
-	/**
-	 * @var integer
-	 */
-	private $indent = 0;
-	/**
-	 * @var array
-	 */
-	public $stats = array();
-	/**
-	 * @var PHPUnit_Framework_TestSuite
-	 */
-	private $currentSuite;
-	/**
-	 * @var PHPUnit_Framework_Test
-	 */
-	private $currentTest;
-	/**
-	 * @var Foomo\Log\Printer
-	 */
-	private $errorPrinter;
-	/**
-	 * @var Foomo\TestRunner\Frontend\Model
-	 */
-	public $model;
-	/**
-	 * @var boolean
-	 */
-	private $errorContainerSent;
-	/**
-	 * @var boolean
-	 */
-	private $done = false;
-
 	//---------------------------------------------------------------------------------------------
 	// ~ Constructor
 	//---------------------------------------------------------------------------------------------
@@ -112,6 +75,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	public function startOutput()
 	{
 		ini_set('memory_limit','256M');
+		ini_set('html_errors', 'Off');
 		$this->lineOut('<div class="innerBox"><div class="rightBox" style="top:20px;right:10px;"><a href="" class="linkButtonYellow backButton">Back</a></div><ul>');
 	}
 
@@ -213,7 +177,6 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	{
 		$this->lineOut('</li></ul>');
 	}
-
     /**
      * A test started.
      *
@@ -221,10 +184,8 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
      */
     public function startTest(\PHPUnit_Framework_Test $test)
 	{
-		$this->currentTest = $test;
-		$this->errorContainerSent = false;
-		\Foomo\TestRunner\Frontend\Model::$errorBuffer = array();
-		$this->err = 0;
+		parent::startTest($test);
+		
 		$this->indent = 0;
 		if($this->testExists($this->currentSuite->getName())) {
 			$this->lineOut('<li class="resultContainer" style="margin:30px 0;"><h3><a name="' . $this->getAnchorName($test) . '" href="' . $this->getUrlHandler()->renderURL('Foomo\\TestRunner\\Frontend\\Controller', 'runTestCase', array($this->currentSuite->getName(), $this->currentTest->getName())) . '">' . $test->getName() . '</a></h3>');
@@ -244,11 +205,12 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	{
 		// $this->lineOut('<!-- ' . __METHOD__ . ' -->');
 		$lines = ob_get_clean();
+		$lines .= $this->bufferOutput;		
 		if(strlen(trim($lines))>0) {
 			$this->sendErrorContainer();
 		}
-		$lines = explode(PHP_EOL, $lines);
 		$isSpec = $this->isSpec($test);
+		$lines = explode(PHP_EOL, $lines);
 		if($isSpec) {
 			$this->sendErrorContainer();
 			$this->lineOut('<div class="story">');
@@ -431,8 +393,6 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 			} else {
 				echo str_repeat(' &nbsp;', $this->indent) . '<span style="color:' . $color . '">' . $line . '</span><br>' . PHP_EOL;
 			}
-
-			//flush();
 		}
 		if($flush && ob_get_length() > 0) {
 			ob_flush();

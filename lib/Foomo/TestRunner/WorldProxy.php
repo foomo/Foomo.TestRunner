@@ -26,6 +26,7 @@ namespace Foomo\TestRunner;
  */
 class WorldProxy
 {
+	private static $outputCallback;
 	//---------------------------------------------------------------------------------------------
 	// ~ Variables
 	//---------------------------------------------------------------------------------------------
@@ -61,21 +62,31 @@ class WorldProxy
 	}
 
 	//---------------------------------------------------------------------------------------------
+	// ~ internal helpers
+	//---------------------------------------------------------------------------------------------
+	
+	public static function setOutputCallBack($callback)
+	{
+		self::$outputCallback = $callback;
+	}
+	
+
+	//---------------------------------------------------------------------------------------------
 	// ~ Private methods
 	//---------------------------------------------------------------------------------------------
 
 	private function showStory($storyTemplateString_____, $storyTemplateArgs____)
 	{
 		extract($storyTemplateArgs____);
-		
+		// the last know evil eval
 		try {
 			ob_start();
 			eval('?>' . $storyTemplateString_____ . PHP_EOL);
 			$buffer = ob_get_clean();
-			echo $buffer;
 			if(substr($buffer,-1) != PHP_EOL) {
-				echo PHP_EOL;
+				$buffer .= PHP_EOL;
 			}
+			$this->handleOutput($buffer);
 		} catch(\Exception $e) {
 			echo 'could not run story "' . $storyTemplateString_____ . '" => ' . $e->getMessage() . PHP_EOL;
 		}
@@ -132,38 +143,43 @@ class WorldProxy
 			if(!$storyFound) {
 				//var_dump('no story', $name, $docComment);
 			}
+			ob_start();
 			$ret = call_user_func_array(array($this->world,$name), $args);
+			$buffer = ob_get_clean();
+			$this->handleOutput($buffer);
 		} else {
 			// that would be nice, but it terminates test execution and that is not nice
 			// $this->world->testCase->markTestIncomplete();
 			if(!in_array(strtolower($name), $this->methodTemplatesShown)) {
 				$this->methodTemplatesShown[] = strtolower($name);
-				echo '// missing method on your world:' . PHP_EOL;
-				echo '/**' . PHP_EOL . '  * @story ' . $this->methodNameToStoryText($name) . PHP_EOL;
+				$output = '';
+				$output .= '// missing method on your world:' . PHP_EOL;
+				$output .= '/**' . PHP_EOL . '  * @story ' . $this->methodNameToStoryText($name) . PHP_EOL;
 				$i = 0;
 				$argsStringArray = array();
 				foreach($args as $arg) {
-					echo '  * @param ';
+					$output .= '  * @param ';
 					switch(true) {
 						case (is_scalar($arg) || is_array($arg)):
-							echo gettype($arg);
+							$output .= gettype($arg);
 							break;
 						case (is_object($arg)):
-							echo get_class($arg);
+							$output .= get_class($arg);
 							break;
 						default:
-							echo 'unknown';
+							$output .= 'unknown';
 
 					}
-					echo ' $arg_' . $i . ' comment' . PHP_EOL;
+					$output .= ' $arg_' . $i . ' comment' . PHP_EOL;
 					$argsStringArray[] = '$arg_' . $i;
 					$i++;
 				}
-				echo '  * @return ' . get_class($this->world) . PHP_EOL;
-				echo '  */' . PHP_EOL;
-				echo ' public function '.$name.'(' . implode(', ', $argsStringArray) . ') {' . PHP_EOL .
+				$output .= '  * @return ' . get_class($this->world) . PHP_EOL;
+				$output .= '  */' . PHP_EOL;
+				$output .= ' public function '.$name.'(' . implode(', ', $argsStringArray) . ') {' . PHP_EOL .
 					 '   echo \'story step \' . __METHOD__ . \' needs to be implemented\' . PHP_EOL;' . PHP_EOL .
 					 ' }' . PHP_EOL;
+				$this->handleOutput($output);
 			}
 		}
 		if(isset($ret) && !is_null($ret)) {
@@ -176,7 +192,15 @@ class WorldProxy
 	//---------------------------------------------------------------------------------------------
 	// ~ Private methods
 	//---------------------------------------------------------------------------------------------
-
+	private function handleOutput($output)
+	{
+		if(isset(self::$outputCallback)) {
+			call_user_func_array(self::$outputCallback, array($output));
+		} else {
+			echo $output;
+		}
+	}
+	
 	/**
 	 * @param string $methodName
 	 * @return string

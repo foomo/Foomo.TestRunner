@@ -28,6 +28,81 @@ use Foomo\TestRunner\AbstractSpec;
  */
 abstract class AbstractPrinter
 {
+	/**
+	 * @var array
+	 */
+	public $stats = array();
+	/**
+	 * @var boolean
+	 */
+	protected $errorContainerSent;
+	
+	/**
+	 * @var Foomo\TestRunner\Frontend\Model
+	 */
+	public $model;
+	
+	/**
+	 *
+	 * @var PHPUnit_Framework_Test
+	 */
+	protected $currentTest;
+	/**
+	 * @var int
+	 */
+	protected $err = 0;
+	/**
+	 * buffered outputs
+	 * 
+	 * @var string
+	 */
+	protected $bufferOutput;
+	/**
+	 * @var int
+	 */
+	protected $indent = 0;
+	/**
+	 * @var PHPUnit_Framework_TestSuite
+	 */
+	protected $currentSuite;
+	/**
+	 * @var Foomo\Log\Printer
+	 */
+	protected $errorPrinter;
+	/**
+	 * @var boolean
+	 */
+	protected $done = false;
+	
+	//---------------------------------------------------------------------------------------------
+	// ~ helpers
+	//---------------------------------------------------------------------------------------------
+
+	public function bufferOutput($output)
+	{
+		$this->bufferOutput .= $output;
+	}
+	
+    /**
+     * A test started.
+     *
+     * @param PHPUnit_Framework_Test $test
+     */
+    public function startTest(\PHPUnit_Framework_Test $test)
+	{
+		$this->bufferOutput = '';
+		if(method_exists($test, 'setOutputCallback')) {
+			$test->setOutputCallback(array($this, 'bufferOutput'));
+		}
+		$this->currentTest = $test;
+		$this->errorContainerSent = false;
+		\Foomo\TestRunner\Frontend\Model::$errorBuffer = array();
+		$this->err = 0;
+		if($this->isSpec($test)) {
+			\Foomo\TestRunner\WorldProxy::setOutputCallback(array($this, 'bufferOutput'));
+		}
+	}
+	
 	//---------------------------------------------------------------------------------------------
 	// ~ Abstract methods
 	//---------------------------------------------------------------------------------------------
