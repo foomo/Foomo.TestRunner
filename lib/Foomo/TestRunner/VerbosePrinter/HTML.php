@@ -29,7 +29,17 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	//---------------------------------------------------------------------------------------------
 	// ~ Variables
 	//---------------------------------------------------------------------------------------------
-
+	/**
+	 * is the current output raw html
+	 * @var type 
+	 */
+	private $outputIsRawHtml = false;
+	/**
+	 * is xdebug installed
+	 * 
+	 * @var boolean
+	 */
+	private static $useXDebug;
 	//---------------------------------------------------------------------------------------------
 	// ~ Constructor
 	//---------------------------------------------------------------------------------------------
@@ -39,6 +49,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	 */
 	public function __construct()
 	{
+		self::$useXDebug = function_exists('xdebug_is_enabled') && xdebug_is_enabled();
 		$this->errorPrinter = new \Foomo\Log\Printer();
 		// make sure that the shutdown listener is reached
 		\Foomo\Log\Logger::getInstance()->autoExitOnError = false;
@@ -75,7 +86,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	public function startOutput()
 	{
 		ini_set('memory_limit','256M');
-		ini_set('html_errors', 'Off');
+		//ini_set('html_errors', 'Off');
 		$this->lineOut('<div class="innerBox"><div class="rightBox" style="top:20px;right:10px;"><a href="" class="linkButtonYellow backButton">Back</a></div><ul>');
 	}
 
@@ -217,14 +228,23 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		}
 		$this->indent ++;
 		foreach($lines as $line) {
-			if(strpos($line, self::QUALIFIED_LINE_START) !== 0) {
-				$line = htmlspecialchars($line);
+			// check if raw html mode is started
+			if(in_array($line, array(self::HTML_START, self::HTML_END))) {
+				$this->outputIsRawHtml = $line == self::HTML_START;
+				continue;
 			}
-			if(strlen($line) > 0) {
-				if($this->isStoryLine($line)) {
-					$this->lineOut('<b>' . $line . '</b>', 'black');
-				} else {
-					$this->lineOut($line, 'grey');
+			if($this->outputIsRawHtml) {
+				echo $line . PHP_EOL;
+			} else {
+				if(strpos($line, self::QUALIFIED_LINE_START) !== 0) {
+					$line = htmlspecialchars($line);
+				}
+				if(strlen($line) > 0) {
+					if($this->isStoryLine($line)) {
+						$this->lineOut('<b>' . $line . '</b>', 'black');
+					} else {
+						$this->lineOut($line, 'grey');
+					}
 				}
 			}
 		}
@@ -376,6 +396,8 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		$this->lineOut('</code>', null, false);
 	}
 	const QUALIFIED_LINE_START = '<!-- qualified output -->';
+	const HTML_START = '<!-- TESTRUNNER HTML STARTS HERE -->';
+	const HTML_END = '<!-- TESTRUNNER HTML ENDS HERE -->';
 	/**
 	 * @param string $line
 	 * @param string $color
@@ -398,5 +420,29 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 			ob_flush();
 			flush();
 		}
+	}
+	/**
+	 * html dump all args
+	 */
+	public static function dump()
+	{
+		echo self::HTML_START . PHP_EOL;
+		$args = func_get_args();
+		foreach($args as $arg) {
+			if(self::$useXDebug) {
+				var_dump($arg);	
+			} else {
+				ob_start();
+				var_dump($arg);
+				$rawDump = ob_get_clean();
+				$lines = explode(PHP_EOL, $rawDump);
+				echo '<pre>';
+				foreach($lines as $line) {
+					echo htmlspecialchars($line) . '<br>' . PHP_EOL;
+				}
+				echo '</pre>';
+			}
+		}
+		echo self::HTML_END . PHP_EOL;
 	}
 }
