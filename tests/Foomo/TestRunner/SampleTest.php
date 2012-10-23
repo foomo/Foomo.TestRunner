@@ -31,7 +31,7 @@ class SampleTest extends \PHPUnit_Framework_TestCase
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @expectedException Exception
+	 * @expectedException \Foomo\Services\Mock\Exception
 	 */
 	public function testException()
 	{
