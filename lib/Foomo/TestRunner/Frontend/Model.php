@@ -201,39 +201,48 @@ class Model extends \Foomo\TestRunner
 	public static function handleError($errno, $errstr, $errfile, $errline)
 	{
 		$name = '';
+		$errorHandled = false;
+		$delegateErrorToPHPUnit = false;
 		switch($errno) {
 			case E_USER_NOTICE:
-				if(!\PHPUnit_Framework_Error_Notice::$enabled) {
-					return true;
-				}
+				$delegateErrorToPHPUnit = \PHPUnit_Framework_Error_Notice::$enabled;
 				$name = 'E_USER_NOTICE';
+				break;
 			case E_USER_WARNING:
-				if(!\PHPUnit_Framework_Error_Warning::$enabled) {
-					return true;
-				}
-				if(empty($name)) {
-					$name = 'E_USER_WARNING';
-				}
+				$delegateErrorToPHPUnit = \PHPUnit_Framework_Error_Warning::$enabled;
+				$name = 'E_USER_WARNING';
+				break;
 			case E_STRICT:
-				if(empty($name)) {
-					$name = 'E_STRICT';
-				}
-				self::$errorBuffer[] = array(
-					'errno' => $errno,
-					'errstr' => $errstr,
-					'errfile' => $errfile,
-					'errline' => $errline,
-					'errtrace' => array_slice(debug_backtrace(), 0)
-				);
-				self::errorBufferHidingHack(array('file' => $errfile, 'line' => $errline, 'name' => $name, 'error' => $errstr));
-				return true;
+				$name = 'E_STRICT';
+				break;
 			default:
-				if(!function_exists('PHPUnit_Util_ErrorHandler')) {
-					return PHPUnit_Util_ErrorHandler::handleError($errno, $errstr, $errfile, $errline);
-				} else {
-					return PHPUnit_Util_ErrorHandler($errno, $errstr, $errfile, $errline);
-				}
+				return self::delegateErrorToPHPUnit($errno, $errstr, $errfile, $errline);
 		}
+
+		if($delegateErrorToPHPUnit) {
+			return self::delegateErrorToPHPUnit($errno, $errstr, $errfile, $errline);
+		} else {
+			self::$errorBuffer[] = array(
+				'errno' => $errno,
+				'errstr' => $errstr,
+				'errfile' => $errfile,
+				'errline' => $errline,
+				'errtrace' => array_slice(debug_backtrace(), 0)
+			);
+			self::errorBufferHidingHack(array('file' => $errfile, 'line' => $errline, 'name' => $name, 'error' => $errstr));			
+			return $errorHandled;
+		}
+
+	}
+	
+	private static function delegateErrorToPHPUnit($errno, $errstr, $errfile, $errline)
+	{
+		if(!function_exists('PHPUnit_Util_ErrorHandler')) {
+			return PHPUnit_Util_ErrorHandler::handleError($errno, $errstr, $errfile, $errline);
+		} else {
+			return PHPUnit_Util_ErrorHandler($errno, $errstr, $errfile, $errline);
+		}
+		
 	}
 
 	//---------------------------------------------------------------------------------------------
