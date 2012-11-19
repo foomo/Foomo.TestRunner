@@ -20,6 +20,7 @@ exit;
 ?>
 
 <div class="innerBox">
+
 		<h2><?= $model->currentResult->name ?> <small>run <?= $result->count() . ' (' . round($result->time(), 4) . ')'; if($result->notImplementedCount() > 0): ?>, not implemented <?= $result->notImplementedCount();endif;  ?></small></h2>
 	
 		<? if($result->errorCount() > 0): ?>
