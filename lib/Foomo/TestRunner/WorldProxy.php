@@ -52,7 +52,7 @@ class WorldProxy
 
 	/**
 	 * @param stdClass $world
-	 * @param PHPUnit_Framework_TestCase $testCase
+	 * @param \PHPUnit_Framework_TestCase $testCase
 	 */
 	public function __construct($world, \PHPUnit_Framework_TestCase $testCase)
 	{
@@ -81,7 +81,7 @@ class WorldProxy
 		// the last know evil eval
 		try {
 			ob_start();
-			eval('?>' . $storyTemplateString_____ . PHP_EOL);
+			eval('?>' . trim($storyTemplateString_____) . PHP_EOL);
 			$buffer = ob_get_clean();
 			if(substr($buffer,-1) != PHP_EOL) {
 				$buffer .= PHP_EOL;
@@ -110,21 +110,22 @@ class WorldProxy
 	/**
 	 * @param string $name
 	 * @param array $args
-	 * @return Foomo\TestRunner\WorldProxy
+	 * @return \Foomo\TestRunner\WorldProxy
 	 */
 	public function __call($name, $args)
 	{
 
 		if(method_exists($this->world, $name)) {
-
 			$methodRefl = new \ReflectionMethod($this->world, $name);
 			$docComment = $methodRefl->getDocComment();
 			$methodRefl->getParameters();
 			$i = 0;
 			// @todo this needs to become more robust ;)
-			$needle = '	 * @story ';
+			$needle = '* @story';
 			$storyFound = false;
-			foreach(\explode(PHP_EOL, $docComment) as $line) {
+            $lines = \explode(PHP_EOL, $docComment);
+			foreach($lines as $line) {
+                $line = trim($line);
 				if(substr($line, 0, strlen($needle)) == $needle) {
 					$argsHash = array();
 					foreach($methodRefl->getParameters() as $parameterRefl) {
@@ -135,13 +136,12 @@ class WorldProxy
 						$i ++;
 					}
 					$this->showStory(substr($line, strlen($needle)), $argsHash);
-
 					$storyFound = true;
 					break;
 				}
 			}
 			if(!$storyFound) {
-				//var_dump('no story', $name, $docComment);
+				//var_dump('no story', $name, $docComment, $lines);
 			}
 			ob_start();
 			$ret = call_user_func_array(array($this->world,$name), $args);
@@ -176,9 +176,10 @@ class WorldProxy
 				}
 				$output .= '  * @return ' . get_class($this->world) . PHP_EOL;
 				$output .= '  */' . PHP_EOL;
-				$output .= ' public function '.$name.'(' . implode(', ', $argsStringArray) . ') {' . PHP_EOL .
-					 '   echo \'story step \' . __METHOD__ . \' needs to be implemented\' . PHP_EOL;' . PHP_EOL .
-					 ' }' . PHP_EOL;
+				$output .= ' public function '.$name.'(' . implode(', ', $argsStringArray) . ')' . PHP_EOL .
+                    '   {' . PHP_EOL .
+					'       echo \'story step \' . __METHOD__ . \' needs to be implemented\' . PHP_EOL;' . PHP_EOL .
+					'   }' . PHP_EOL;
 				$this->handleOutput($output);
 			}
 		}

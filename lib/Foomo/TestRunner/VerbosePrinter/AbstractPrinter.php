@@ -113,7 +113,7 @@ abstract class AbstractPrinter
 	abstract function startOutput();
 
 	/**
-	 * @param Foomo\TestRunner\Result $result
+	 * @param \Foomo\TestRunner\Result $result
 	 * @return string
 	 */
 	abstract function printResult(\Foomo\TestRunner\Result $result);
@@ -128,9 +128,8 @@ abstract class AbstractPrinter
 	 */
 	protected function isStoryLine($line)
 	{
-		$isStoryLine = false;
 		foreach(array('when', 'then', 'given') as $storyKeyword) {
-			if(strpos($line, $storyKeyword) == $storyKeyword) {
+			if(strpos($line, $storyKeyword) === 0) {
 				return true;
 			}
 		}
