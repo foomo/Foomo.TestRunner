@@ -51,6 +51,17 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	{
 		return 'PHPUnit integration';
 	}
+	/**
+	 * get all the module resources
+	 *
+	 * @return \Foomo\Modules\Resource[]
+	 */
+	public static function getResources()
+	{
+		return array(
+			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.*')
+		);
+	}
 
 	//---------------------------------------------------------------------------------------------
 	// ~ Toolbox interface methods
@@ -66,4 +77,5 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 			\Foomo\Frontend\ToolboxConfig\MenuEntry::create('Root.Modules.TestRunner', 'Test Runner', self::NAME, 'Foomo.TestRunner')
 		);
 	}
+
 }

@@ -1,0 +1,13 @@
+{
+    "name": "foomo\/testrunner",
+    "type": "foomo-module",
+    "require": {
+
+    },
+    "license": "LGPL-3.0+",
+    "description": "PHPUnit integration",
+    "extra": {
+        "moduleName": "Foomo.TestRunner"
+    },
+    "target-dir": "Foomo.TestRunner"
+}
