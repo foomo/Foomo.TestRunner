@@ -164,7 +164,7 @@ class WorldProxy
 							$output .= gettype($arg);
 							break;
 						case (is_object($arg)):
-							$output .= get_class($arg);
+							$output .= '\\' . get_class($arg);
 							break;
 						default:
 							$output .= 'unknown';
@@ -174,7 +174,7 @@ class WorldProxy
 					$argsStringArray[] = '$arg_' . $i;
 					$i++;
 				}
-				$output .= '  * @return ' . get_class($this->world) . PHP_EOL;
+				$output .= '  * @return \\' . get_class($this->world) . PHP_EOL;
 				$output .= '  */' . PHP_EOL;
 				$output .= ' public function '.$name.'(' . implode(', ', $argsStringArray) . ')' . PHP_EOL .
                     '   {' . PHP_EOL .
