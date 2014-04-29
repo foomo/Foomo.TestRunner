@@ -261,6 +261,12 @@ class Text extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		$this->indent --;
 	}
 
+	public function addRiskyTest(\PHPUnit_Framework_Test $test, \Exception $e, $time)
+	{
+
+	}
+
+
 	/**
 	 * @param Foomo\TestRunner\Result $result
 	 */

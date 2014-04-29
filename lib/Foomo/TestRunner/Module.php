@@ -59,7 +59,8 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	public static function getResources()
 	{
 		return array(
-			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.*')
+			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.*'),
+			\Foomo\Modules\Resource\ComposerPackage::getResource('phpunit/phpunit', '4.0.*')
 		);
 	}
 

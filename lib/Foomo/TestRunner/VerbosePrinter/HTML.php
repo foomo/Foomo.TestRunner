@@ -307,6 +307,12 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		$this->done = true;
 	}
 
+	public function addRiskyTest(\PHPUnit_Framework_Test $test, \Exception $e, $time)
+	{
+
+	}
+
+
 	//---------------------------------------------------------------------------------------------
 	// ~ Private methods
 	//---------------------------------------------------------------------------------------------
