@@ -33,7 +33,7 @@ class Controller
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @var Foomo\TestRunner\Frontend\Model
+	 * @var Model
 	 */
 	public $model;
 
@@ -63,7 +63,9 @@ class Controller
 	public function actionRunTest($name)
 	{
 		$this->model->runTest($name);
+        //$this->model->currentResult
 	}
+
 
 	/**
 	 *

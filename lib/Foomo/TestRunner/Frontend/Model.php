@@ -19,6 +19,7 @@
 
 namespace Foomo\TestRunner\Frontend;
 
+use Foomo\MVC;
 use PHPUnit_Framework_TestSuite, PHPUnit_Util_ErrorHandler;
 
 use Foomo\Config;
@@ -62,7 +63,7 @@ class Model extends \Foomo\TestRunner
 	/**
 	 * result of the last suite
 	 *
-	 * @var Foomo\TestRunner\Result
+	 * @var \Foomo\TestRunner\Result
 	 */
 	public $currentResult;
 	/**
@@ -113,7 +114,13 @@ class Model extends \Foomo\TestRunner
 
 	public function runSuite($name)
 	{
-		$this->currentResult = $this->runASuite($this->composeSuiteFromFoomoTestSuite($name));
+        MVC::abort();
+        if(class_exists($name)) {
+            $suite = new $name;
+        } else {
+            $suite = $this->composeSuiteFromFoomoTestSuite($name);
+        }
+		$this->currentResult = $this->runASuite($suite);
 	}
 
 	//---------------------------------------------------------------------------------------------
@@ -156,6 +163,8 @@ class Model extends \Foomo\TestRunner
 			set_error_handler(array(__CLASS__, 'handleError'), E_ALL);
 			self::errorBufferHidingHack(false);
 			ob_start();
+            $junitPrinter = new \PHPUnit_Util_Log_JUnit();
+            $ret->result->addListener($junitPrinter);
 			$suite->run($ret->result);
 
 			$phpErrors = $this->getPhpErrors($startSize);
@@ -169,6 +178,7 @@ class Model extends \Foomo\TestRunner
 			$ret->exception = $e;
 		}
 		$ret->verbosePrinter->printResult($ret);
+        echo $junitPrinter->getXML();
 		if($streamHtml) {
 			exit;
 		}

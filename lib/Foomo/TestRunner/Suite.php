@@ -24,7 +24,7 @@ namespace Foomo\TestRunner;
  * @license www.gnu.org/licenses/lgpl.txt
  * @author jan <jan@bestbytes.de>
  */
-abstract class Suite extends \PHPUnit_Framework_TestSuite
+abstract class Suite
 {
 	//---------------------------------------------------------------------------------------------
 	// ~ Abstract methods

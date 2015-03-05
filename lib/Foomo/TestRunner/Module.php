@@ -62,8 +62,7 @@ class Module extends \Foomo\Modules\ModuleBase implements \Foomo\Frontend\Toolbo
 	{
 		return array(
 			\Foomo\Modules\Resource\Module::getResource('Foomo', '0.3.*'),
-			\Foomo\Modules\Resource\ComposerPackage::getResource('phpunit/phpunit', '4.5.*'),
-			\Foomo\Modules\Resource\ComposerPackage::getResource('phpunit/phpunit-selenium', '>=1.4.2')
+			\Foomo\Modules\Resource\ComposerPackage::getResource('phpunit/phpunit', '4.5.*')
 		);
 	}
 

@@ -112,10 +112,17 @@ $suiteTests = array();
 												$suiteTests = $model->getSuiteTests($suiteName);
 											?><?= $view->link($suiteName, 'runSuite', array('name' => $suiteName ));?></h3>
 										<ul>
-											<? foreach($suiteTests as $testName): ?>
+											<?
+                                                $isAFoomoSuite = $model->isAFoomoSuite($suiteName);
+                                                foreach($suiteTests as $testName):
+                                            ?>
 												<li>
-													<?= $view->link($testName, 'runTest', array('name' => $testName )) ?>
-													<?= $view->partial('testMethods', array('testName' => $testName)) ?>
+                                                    <? if($isAFoomoSuite): ?>
+    													<?= $view->link($testName, 'runTest', array('name' => $testName )) ?>
+	    												<?= $view->partial('testMethods', array('testName' => $testName)) ?>
+                                                    <? else: ?>
+                                                        <?= $view->escape($testName) ?>
+                                                    <? endif; ?>
 												</li>
 											<? endforeach; ?>
 										</ul>

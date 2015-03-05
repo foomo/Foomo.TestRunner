@@ -19,6 +19,7 @@
 
 namespace Foomo;
 
+use Foomo\TestRunner\Suite;
 use ReflectionClass;
 use PHPUnit_Framework_TestSuite;
 
@@ -44,16 +45,32 @@ class TestRunner
 	 */
 	public function getSuiteTests($suiteName)
 	{
-		$ret = array();
-		$lister = new $suiteName;
-		$classesToAdd = $lister->foomoTestSuiteGetList();
-		foreach ($classesToAdd as $className) {
-			if (class_exists($className)) {
-				$ret[] = $className;
-			}
-		}
-		return $ret;
+        $lister = new $suiteName;
+        if($this->isAFoomoSuite($suiteName)) {
+		    $ret = array();
+            $classesToAdd = $lister->foomoTestSuiteGetList();
+            foreach ($classesToAdd as $className) {
+                if (class_exists($className)) {
+                    $ret[] = $className;
+                }
+            }
+		    return $ret;
+        } else {
+            $ret = [];
+            /* @var $lister PHPUnit_Framework_TestSuite */
+            foreach($lister->getIterator() as $testCase) {
+                /* @var $testCase \PHPUnit_Framework_TestCase */
+                $ret[] = $testCase->getName();
+            }
+            return $ret;
+        }
 	}
+
+    public function isAFoomoSuite($suiteName)
+    {
+        $refl = new ReflectionClass($suiteName);
+        return $refl->isSubclassOf(__CLASS__ . '\\' . 'Suite');
+    }
 
 	/**
 	 * get a list of suites
@@ -133,8 +150,7 @@ class TestRunner
 	public function getModuleSuites($moduleName)
 	{
 		$dir = \Foomo\CORE_CONFIG_DIR_MODULES . DIRECTORY_SEPARATOR . $moduleName . DIRECTORY_SEPARATOR . 'tests';
-		$tests = array();
-		return $this->getSuitesInFolder($dir);
+		return array_unique(array_merge($this->getSuitesInFolder($dir), $this->getPHPUnitSuites($dir)));
 	}
 
 	public function composeCompleteSuite()
@@ -208,14 +224,16 @@ class TestRunner
 	 */
 	public function getTestMethods($className)
 	{
-		$classRefl = new ReflectionClass($className);
 		$ret = array();
-		foreach ($classRefl->getMethods() as $method) {
-			/* @var $method \ReflectionMethod */
-			if (strpos($method->getName(), 'test') === 0 && !$method->isAbstract() && !$method->isStatic() && $method->getDeclaringClass()->getName() == $className) {
-				$ret[] = $method->getName();
-			}
-		}
+        if(class_exists($className)) {
+            $classRefl = new ReflectionClass($className);
+            foreach ($classRefl->getMethods() as $method) {
+                /* @var $method \ReflectionMethod */
+                if (strpos($method->getName(), 'test') === 0 && !$method->isAbstract() && !$method->isStatic() && $method->getDeclaringClass()->getName() == $className) {
+                    $ret[] = $method->getName();
+                }
+            }
+        }
 		return $ret;
 	}
 
@@ -228,13 +246,17 @@ class TestRunner
 	 */
 	public function composeSuiteFromFoomoTestSuite($suiteName)
 	{
-
-		$suite = new PHPUnit_Framework_TestSuite();
-		$suite->setName($suiteName);
-		foreach ($this->getSuiteTests($suiteName) as $className) {
-			$suite->addTestSuite($className);
-		}
-		return $suite;
+        $originalSuite = new $suiteName;
+        if($suiteName instanceof Suite) {
+            $suite = new PHPUnit_Framework_TestSuite();
+            $suite->setName($suiteName);
+            foreach ($this->getSuiteTests($suiteName) as $className) {
+                $suite->addTestSuite($className);
+            }
+            return $suite;
+        } else {
+            return $originalSuite;
+        }
 	}
 
 	//---------------------------------------------------------------------------------------------
@@ -267,9 +289,11 @@ class TestRunner
 		return $this->getShitInFolder($folder, 'PHPUnit_Framework_TestCase');
 	}
 
-	/**
-	 * @todo: rename
-	 */
+	private function getPHPUnitSuites($folder)
+	{
+		return $this->getShitInFolder($folder, 'PHPUnit_Framework_TestSuite');
+	}
+
 	private function getShitInFolder($folder, $typeOfShit)
 	{
 		$classMap = AutoLoader::getClassMap();
@@ -277,7 +301,6 @@ class TestRunner
 		$ret = array();
 		$folder = realpath($folder);
 		foreach ($allTests as $test) {
-			//$lowerTest = strtolower($test);
 			if (isset($classMap[$test])) {
 				if (strpos(realpath($classMap[$test]), $folder) === 0) {
 					$ret[] = $test;
@@ -292,7 +315,6 @@ class TestRunner
 		$results = array();
 		$classMap = AutoLoader::getClassMap();
 		$classes = array_keys($classMap);
-		$report = '';
 		foreach ($classes as $class) {
 			if (class_exists($class)) {
 				$reflection = new ReflectionClass($class);

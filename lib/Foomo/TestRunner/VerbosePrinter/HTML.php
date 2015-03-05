@@ -271,7 +271,7 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 	}
 
 	/**
-	 * @param Foomo\TestRunner\Result $result
+	 * @param \Foomo\TestRunner\Result $result
 	 */
 	public function printResult(\Foomo\TestRunner\Result $result)
 	{
