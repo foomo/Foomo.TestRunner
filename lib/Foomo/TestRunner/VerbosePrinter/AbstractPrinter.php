@@ -38,13 +38,13 @@ abstract class AbstractPrinter
 	protected $errorContainerSent;
 	
 	/**
-	 * @var Foomo\TestRunner\Frontend\Model
+	 * @var \Foomo\TestRunner\Frontend\Model
 	 */
 	public $model;
 	
 	/**
 	 *
-	 * @var PHPUnit_Framework_Test
+	 * @var \PHPUnit_Framework_Test
 	 */
 	protected $currentTest;
 	/**
@@ -62,11 +62,11 @@ abstract class AbstractPrinter
 	 */
 	protected $indent = 0;
 	/**
-	 * @var PHPUnit_Framework_TestSuite
+	 * @var \PHPUnit_Framework_TestSuite
 	 */
 	protected $currentSuite;
 	/**
-	 * @var Foomo\Log\Printer
+	 * @var \Foomo\Log\Printer
 	 */
 	protected $errorPrinter;
 	/**
@@ -86,7 +86,7 @@ abstract class AbstractPrinter
     /**
      * A test started.
      *
-     * @param PHPUnit_Framework_Test $test
+     * @param \PHPUnit_Framework_Test $test
      */
     public function startTest(\PHPUnit_Framework_Test $test)
 	{
@@ -96,7 +96,7 @@ abstract class AbstractPrinter
 		}
 		$this->currentTest = $test;
 		$this->errorContainerSent = false;
-		\Foomo\TestRunner\Frontend\Model::$errorBuffer = array();
+		\Foomo\TestRunner\Frontend\TestRunner::$errorBuffer = array();
 		$this->err = 0;
 		if($this->isSpec($test)) {
 			\Foomo\TestRunner\WorldProxy::setOutputCallback(array($this, 'bufferOutput'));
@@ -143,12 +143,11 @@ abstract class AbstractPrinter
 	protected function suiteExists($name)
 	{
 		foreach(\Foomo\Modules\Manager::getEnabledModules() as $enabledModuleName) {
-			foreach($suites = $this->model->getModuleSuites($enabledModuleName) as $suite) {
+            foreach($suites = $this->model->testRunner->getModuleSuites($enabledModuleName) as $suite) {
 				if($suite == $name) {
 					return true;
 				}
 			}
-			//var_dump($name, $suites);
 		}
 		return false;
 	}
@@ -160,7 +159,7 @@ abstract class AbstractPrinter
 	protected function testExists($name)
 	{
 		foreach(\Foomo\Modules\Manager::getEnabledModules() as $enabledModuleName) {
-			foreach($tests = array_merge($this->model->getModuleTests($enabledModuleName), $this->model->getModuleSpecs($enabledModuleName)) as $test) {
+			foreach($tests = array_merge($this->model->testRunner->getModuleTests($enabledModuleName), $this->model->testRunner->getModuleSpecs($enabledModuleName)) as $test) {
 				if($test == $name) {
 					return true;
 				}

@@ -247,9 +247,9 @@ class Text extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 		if($isSpec) {
 			$this->lineOut('', self::COLOR_BLACK, self::BG_COLOR_GREY);
 		}
-		if(count(\Foomo\TestRunner\Frontend\Model::$errorBuffer) > 0) {
+		if(count(\Foomo\TestRunner\Frontend\TestRunner::$errorBuffer) > 0) {
 			$this->lineOut('Ignored errors:', self::COLOR_GREY);
-			foreach(\Foomo\TestRunner\Frontend\Model::$errorBuffer as $error) {
+			foreach(\Foomo\TestRunner\Frontend\TestRunner::$errorBuffer as $error) {
 				$this->printError($error);
 			}
 		}
@@ -268,7 +268,7 @@ class Text extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 
 
 	/**
-	 * @param Foomo\TestRunner\Result $result
+	 * @param \Foomo\TestRunner\Result $result
 	 */
 	public function printResult(\Foomo\TestRunner\Result $result)
 	{

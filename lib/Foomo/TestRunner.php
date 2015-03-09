@@ -247,7 +247,7 @@ class TestRunner
 	public function composeSuiteFromFoomoTestSuite($suiteName)
 	{
         $originalSuite = new $suiteName;
-        if($suiteName instanceof Suite) {
+        if($originalSuite instanceof Suite) {
             $suite = new PHPUnit_Framework_TestSuite();
             $suite->setName($suiteName);
             foreach ($this->getSuiteTests($suiteName) as $className) {

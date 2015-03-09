@@ -40,12 +40,12 @@ class Result
 	public $name = '';
 	/**
 	 *
-	 * @var PHPUnit_Framework_TestResult
+	 * @var \PHPUnit_Framework_TestResult
 	 */
 	public $result;
 	/**
 	 *
-	 * @var Exception
+	 * @var \Exception
 	 */
 	public $exception;
 	/**
@@ -62,7 +62,7 @@ class Result
 	public $errorBuffer;
 	/**
 	 *
-	 * @var PHPUnit_Framework_TestSuite
+	 * @var \PHPUnit_Framework_TestSuite
 	 */
 	public $testSuite;
 	/**
@@ -72,7 +72,7 @@ class Result
 	 */
 	public $phpErrors;
 	/**
-	 * @var VerbosePrinter
+	 * @var VerbosePrinter\AbstractPrinter
 	 */
 	public $verbosePrinter;
 
@@ -84,10 +84,5 @@ class Result
 	public function  __construct()
 	{
 		$this->result = new \PHPUnit_Framework_TestResult;
-		if(php_sapi_name() == 'cli') {
-			$this->result->addListener($this->verbosePrinter = new VerbosePrinter\Text);
-		} else {
-			$this->result->addListener($this->verbosePrinter = new VerbosePrinter\HTML);
-		}
 	}
 }

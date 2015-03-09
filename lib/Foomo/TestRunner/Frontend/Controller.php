@@ -19,7 +19,11 @@
 
 namespace Foomo\TestRunner\Frontend;
 
+use Foomo\HTMLDocument;
+use Foomo\Modules\Manager;
+use Foomo\MVC;
 use Foomo\TestRunner;
+use Foomo\TestRunner\VerbosePrinter;
 
 /**
  * @link www.foomo.org
@@ -54,7 +58,13 @@ class Controller
 	 */
 	public function actionRunModuleTests($moduleName)
 	{
-		$this->model->runModule($moduleName);
+        $moduleName = (string) $moduleName;
+        if(!in_array($moduleName, Manager::getEnabledModules())) {
+            throw new \InvalidArgumentException("invalid module name " . $moduleName);
+        }
+        $this->model->currentModuleTest = $moduleName;
+		$this->runSuite($this->model->testRunner->composeModuleSuite($moduleName));
+        exit;
 	}
 
 	/**
@@ -62,8 +72,9 @@ class Controller
 	 */
 	public function actionRunTest($name)
 	{
-		$this->model->runTest($name);
-        //$this->model->currentResult
+        $this->validateNameIsSubclassOf($name, 'PHPUnit_Framework_TestCase');
+        $this->runSuite($this->model->testRunner->getASuiteForOne($name));
+        exit;
 	}
 
 
@@ -72,7 +83,8 @@ class Controller
 	 */
 	public function actionRunAll()
 	{
-		$this->model->runAll();
+		$this->runSuite($this->model->testRunner->composeCompleteSuite());
+        exit;
 	}
 
 	/**
@@ -80,7 +92,8 @@ class Controller
 	 */
 	public function actionRunSuite($name)
 	{
-		$this->model->runSuite($name);
+		$this->runSuite($this->model->testRunner->composeSuiteFromFoomoTestSuite((string)$name));
+        exit;
 	}
 
 	/**
@@ -90,6 +103,86 @@ class Controller
 	 */
 	public function actionRunTestCase($suiteName, $caseName)
 	{
-		$this->model->runTestCase($suiteName, $caseName);
+        $this->runSuite(
+            $this->model->testRunner->getTestCaseSuite(
+                (string) $suiteName,
+                (string) $caseName
+            )
+        );
+        exit;
 	}
+
+    private static function startStreaming()
+    {
+        ob_implicit_flush(true);
+        ini_set('output_buffering', false);
+
+    }
+    public function runSuite(\PHPUnit_Framework_TestSuite $suite, $format = null)
+    {
+        $cli = php_sapi_name() == 'cli';
+
+        if($format == null) {
+            if($cli) {
+                $format = 'text';
+            } else {
+                switch(true) {
+                    case isset($_GET['junit']):
+                        header('Content-Type: text/xml; charset=utf-8;');
+                        $format = 'junit';
+                        break;
+                    case isset($_GET['text']):
+                        header('Content-Type: text/plain; charset=utf-8;');
+                        $format = 'text';
+                        break;
+                    default:
+                        $format = 'html';
+                }
+            }
+        }
+
+        switch($format) {
+            case 'text':
+                MVC::abort();
+                self::startStreaming();
+                $this->model->currentResult->result->addListener($verbosePrinter = new VerbosePrinter\Text);
+                break;
+            case 'html':
+                MVC::abort();
+                self::startStreaming();
+                echo HTMLDocument::getInstance()->outputWithOpenBody();
+                $this->model->currentResult->result->addListener($verbosePrinter = new VerbosePrinter\HTML);
+                break;
+            case 'junit':
+                MVC::abort();
+                $junitPrinter = new \PHPUnit_Util_Log_JUnit();
+                $this->model->currentResult->result->addListener($junitPrinter);
+                break;
+        }
+        if(isset($verbosePrinter)) {
+            $verbosePrinter->startOutput();
+            $verbosePrinter->model = $this->model;
+            $this->model->currentResult->verbosePrinter = $verbosePrinter;
+        }
+        $this->model->testRunner->runASuite($suite, $this->model->currentResult);
+        switch($format) {
+            case 'text':
+            case 'html':
+                $verbosePrinter->printResult($this->model->currentResult);
+                break;
+            case 'junit':
+                echo $junitPrinter->getXML();
+                break;
+            default:
+
+        }
+    }
+    private function validateNameIsSubclassOf($name, $parentClassname)
+    {
+		$refl = new \ReflectionClass($name);
+		if(!$refl->isSubclassOf($parentClassname)) {
+            throw new \InvalidArgumentException("has to inherit from " . $parentClassname);
+        }
+
+    }
 }

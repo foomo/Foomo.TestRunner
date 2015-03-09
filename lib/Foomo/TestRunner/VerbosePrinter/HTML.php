@@ -248,10 +248,10 @@ class HTML extends AbstractPrinter implements \PHPUnit_Framework_TestListener
 				}
 			}
 		}
-		if(count(\Foomo\TestRunner\Frontend\Model::$errorBuffer) > 0) {
+		if(count(\Foomo\TestRunner\Frontend\TestRunner::$errorBuffer) > 0) {
 			$this->sendErrorContainer();
 			$this->lineOut('Ignored errors:', 'grey');
-			foreach(\Foomo\TestRunner\Frontend\Model::$errorBuffer as $error) {
+			foreach(\Foomo\TestRunner\Frontend\TestRunner::$errorBuffer as $error) {
 				$this->printError($error);
 			}
 		}

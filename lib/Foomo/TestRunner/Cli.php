@@ -33,7 +33,7 @@ class Cli
 	//---------------------------------------------------------------------------------------------
 
 	/**
-	 * @var Foomo\TestRunner
+	 * @var \Foomo\TestRunner
 	 */
 	protected $model;
 
@@ -99,7 +99,7 @@ class Cli
 	 */
 	public function runProjectTestsForHudson($reportDirectory)
 	{
-		$modules = Foomo\Modules\Manager::getEnabledModules();
+		$modules = \Foomo\Modules\Manager::getEnabledModules();
 
 		set_error_handler(array('Foomo\\TestRunner\\Frontend\\Model', 'handleError'), E_ALL);
 		$result = new \PHPUnit_Framework_TestResult;

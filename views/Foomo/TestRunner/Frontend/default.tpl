@@ -6,9 +6,9 @@ $tests = array();
 
 foreach(Foomo\Modules\Manager::getEnabledModules() as $enabledModuleName) {
 	$tests[$enabledModuleName] = array(
-		'tests' => $model->getModuleTests($enabledModuleName),
-		'suites' => $model->getModuleSuites($enabledModuleName),
-		'specs' => $model->getModuleSpecs($enabledModuleName)
+		'tests' => $model->testRunner->getModuleTests($enabledModuleName),
+		'suites' => $model->testRunner->getModuleSuites($enabledModuleName),
+		'specs' => $model->testRunner->getModuleSpecs($enabledModuleName)
 	);
 }
 $suiteTests = array();
@@ -36,7 +36,7 @@ $suiteTests = array();
 		$domainTestId = $domainId . 'Tests';
 		$domainSuiteId = $domainId . 'Suites';
 		$allDomainSuiteTests = array();foreach($stuff['suites'] as $suiteName) {
-			$allDomainSuiteTests = array_merge($allDomainSuiteTests, $model->getSuiteTests($suiteName));
+			$allDomainSuiteTests = array_merge($allDomainSuiteTests, $model->testRunner->getSuiteTests($suiteName));
 		}
 		?>
 	
@@ -109,11 +109,11 @@ $suiteTests = array();
 								<ul>	
 									<li>
 										<h3><?
-												$suiteTests = $model->getSuiteTests($suiteName);
+												$suiteTests = $model->testRunner->getSuiteTests($suiteName);
 											?><?= $view->link($suiteName, 'runSuite', array('name' => $suiteName ));?></h3>
 										<ul>
 											<?
-                                                $isAFoomoSuite = $model->isAFoomoSuite($suiteName);
+                                                $isAFoomoSuite = $model->testRunner->isAFoomoSuite($suiteName);
                                                 foreach($suiteTests as $testName):
                                             ?>
 												<li>
